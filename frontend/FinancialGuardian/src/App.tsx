@@ -1,12 +1,33 @@
-import { SectionCard, SectionCardGroup } from './components/ui/layout'
+import { useEffect, useState } from 'react'
+import { useAuthStore } from '@/stores/auth'
+import { FinancialFeature } from '@/features/financial'
+import { Login } from '@/features/auth/Login'
+import { Signup } from '@/features/auth/Signup'
+
+type Mode = 'login' | 'signup'
+
 export default function App() {
-  return (
-    <div className="min-h-screen bg-stone-50 dark:bg-neutral-950 p-6">
+  const user = useAuthStore((s) => s.user)
+  const initialized = useAuthStore((s) => s.initialized)
+  const fetchMe = useAuthStore((s) => s.fetchMe)
 
-      <SectionCard title="Financial Dashboard" accent="teal">
-        Welcome to your system
-      </SectionCard>
+  const [mode, setMode] = useState<Mode>('login')
 
-    </div>
+  useEffect(() => {
+    fetchMe()
+  }, [])
+
+  if (!initialized) {
+    return <div className="h-screen flex items-center justify-center">Loading session...</div>
+  }
+
+  if (user) {
+    return <FinancialFeature />
+  }
+
+  return mode === 'login' ? (
+    <Login onSwitch={() => setMode('signup')} />
+  ) : (
+    <Signup onSwitch={() => setMode('login')} />
   )
 }

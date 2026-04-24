@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type EmptyStateVariant =
-  | 'default'     // generic "nothing here yet"
-  | 'ai-working'  // AI is processing, will populate soon
-  | 'all-clear'   // everything is fine, nothing flagged
-  | 'search'      // no search results
+  | 'default'     
+  | 'ai-working'  
+  | 'all-clear'   
+  | 'search'     
 
 interface EmptyStateProps {
   variant?: EmptyStateVariant
@@ -20,7 +19,6 @@ interface EmptyStateProps {
   className?: string
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 function IconDefault() {
   return (
@@ -49,7 +47,6 @@ function IconSearch() {
   )
 }
 
-// ─── AI working dots ─────────────────────────────────────────────────────────
 
 function AiWorkingDots() {
   return (
@@ -71,7 +68,6 @@ function AiWorkingDots() {
   )
 }
 
-// ─── Variant config ───────────────────────────────────────────────────────────
 
 const variantDefaults: Record<
   EmptyStateVariant,
@@ -101,12 +97,11 @@ const variantDefaults: Record<
 
 const iconMap: Record<EmptyStateVariant, React.ReactNode> = {
   default: <IconDefault />,
-  'ai-working': null, // replaced by dots
+  'ai-working': null, 
   'all-clear': <IconAllClear />,
   search: <IconSearch />,
 }
 
-// ─── EmptyState ───────────────────────────────────────────────────────────────
 
 export function EmptyState({
   variant = 'default',
