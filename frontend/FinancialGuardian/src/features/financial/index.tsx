@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { SectionCard, SectionCardGroup } from '@/components/ui/layout/SectionCard'
 import { useAuthStore } from '@/stores/auth'
 import { transactionApi } from '@/lib/api'
 import { motion } from 'framer-motion'
@@ -11,6 +10,7 @@ type Transaction = {
   _id: string
   name: string
   amount: number
+  type: 'income' | 'expense'
   category: string
   date: string
 }
@@ -38,7 +38,7 @@ function categoryIcon(category: string): string {
 
 // ─── Animation variants ───────────────────────────────────────────────────────
 
-const fadeUp: Variants ={
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 12 },
   visible: (i: number) => ({
     opacity: 1,
@@ -89,13 +89,13 @@ export function FinancialFeature() {
     load()
   }, [])
 
-  // ── Derived stats ──────────────────────────────────────────────────────────
-  const balance  = transactions.reduce((acc, t) => acc + t.amount, 0)
-  const income   = transactions.filter(t => t.amount > 0).reduce((a, t) => a + t.amount, 0)
-  const expenses = transactions.filter(t => t.amount < 0).reduce((a, t) => a + t.amount, 0)
+  // ── Derived stats (all amounts are positive, type drives the sign) ─────────
+  const income   = transactions.filter(t => t.type === 'income').reduce((a, t) => a + t.amount, 0)
+  const expenses = transactions.filter(t => t.type === 'expense').reduce((a, t) => a + t.amount, 0)
+  const balance  = income - expenses
 
   const formatEur = (n: number) =>
-    `${n >= 0 ? '' : '−'}€${Math.abs(n).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    `€${n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
   return (
     <div className="min-h-screen bg-[#0c0c0f] text-white p-6 lg:p-8">
@@ -144,9 +144,24 @@ export function FinancialFeature() {
         {/* ── Stat row ──────────────────────────────────────────────────── */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            { label: 'Net balance', value: formatEur(balance),  positive: balance >= 0, i: 0 },
-            { label: 'Income',      value: formatEur(income),   positive: true,         i: 1 },
-            { label: 'Expenses',    value: formatEur(expenses),  positive: false,        i: 2 },
+            {
+              label:    'Net balance',
+              value:    `${balance >= 0 ? '' : '−'}${formatEur(Math.abs(balance))}`,
+              positive: balance >= 0,
+              i: 0,
+            },
+            {
+              label:    'Income',
+              value:    formatEur(income),
+              positive: true,
+              i: 1,
+            },
+            {
+              label:    'Expenses',
+              value:    formatEur(expenses),
+              positive: false,
+              i: 2,
+            },
           ].map(({ label, value, positive, i }) => (
             <motion.div
               key={label}
@@ -213,8 +228,9 @@ export function FinancialFeature() {
                     className="flex items-center justify-between px-5 py-3.5 hover:bg-white/[0.03] transition-colors duration-150"
                   >
                     <div className="flex items-center gap-3">
+                      {/* Icon — color driven by t.type */}
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[14px] shrink-0 ${
-                        t.amount >= 0
+                        t.type === 'income'
                           ? 'bg-teal-500/10 border border-teal-500/20'
                           : 'bg-rose-500/10 border border-rose-500/20'
                       }`}>
@@ -228,10 +244,11 @@ export function FinancialFeature() {
                       </div>
                     </div>
 
+                    {/* Amount — sign driven by t.type, value always positive */}
                     <span className={`text-[14px] font-semibold font-mono tabular-nums ${
-                      t.amount >= 0 ? 'text-teal-400' : 'text-rose-400'
+                      t.type === 'income' ? 'text-teal-400' : 'text-rose-400'
                     }`}>
-                      {t.amount > 0 ? '+' : '−'}€{Math.abs(t.amount).toFixed(2)}
+                      {t.type === 'income' ? '+' : '−'}€{t.amount.toFixed(2)}
                     </span>
                   </motion.div>
                 ))
