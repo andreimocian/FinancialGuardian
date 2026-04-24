@@ -3,10 +3,14 @@ const { generateSeed } = require('../services/seedData');
 
 exports.createTransaction = async (req, res) => {
     try {
-        const { merchant, amount, currency, category, date, description } = req.body;
+        const { merchant, amount, currency, category, date, description, type } = req.body;
 
         if (!merchant || amount === undefined || amount === null) {
             return res.status(400).json({ message: 'merchant and amount are required' });
+        }
+
+        if (amount < 0) {
+            return res.status(400).json({ message: 'amount must be positive; use type="income" or "expense"' });
         }
 
         const transaction = await Transaction.create({
@@ -17,6 +21,7 @@ exports.createTransaction = async (req, res) => {
             category,
             date,
             description,
+            type,
         });
 
         res.status(201).json({ status: 'success', transaction });
@@ -27,8 +32,13 @@ exports.createTransaction = async (req, res) => {
 
 exports.getTransactions = async (req, res) => {
     try {
+        const filter = { userId: req.user._id };
+        if (req.query.type === 'income' || req.query.type === 'expense') {
+            filter.type = req.query.type;
+        }
+
         const transactions = await Transaction
-            .find({ userId: req.user._id })
+            .find(filter)
             .sort({ date: -1 });
 
         res.status(200).json({
@@ -43,7 +53,7 @@ exports.getTransactions = async (req, res) => {
 
 exports.updateTransaction = async (req, res) => {
     try {
-        const allowed = ['merchant', 'amount', 'currency', 'category', 'date', 'description'];
+        const allowed = ['merchant', 'amount', 'currency', 'category', 'date', 'description', 'type'];
         const updates = {};
         for (const key of allowed) {
             if (req.body[key] !== undefined) updates[key] = req.body[key];

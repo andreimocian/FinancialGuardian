@@ -24,7 +24,33 @@ function monthStart(monthsBack, day = 1) {
 function generateSeed(userId) {
     const txns = [];
 
-    const push = (t) => txns.push({ userId, currency: 'EUR', ...t });
+    const push = (t) => txns.push({ userId, currency: 'EUR', type: 'expense', ...t });
+
+    // Monthly salary (paid on the 25th)
+    for (let i = MONTHS - 1; i >= 0; i--) {
+        push({
+            merchant: 'Acme Corp Payroll',
+            amount: 8500,
+            category: 'salary',
+            type: 'income',
+            date: monthStart(i, 25),
+            description: 'Monthly salary',
+        });
+    }
+
+    // Occasional freelance income (~40% of months)
+    for (let i = MONTHS - 1; i >= 0; i--) {
+        if (Math.random() < 0.4) {
+            push({
+                merchant: 'Upwork',
+                amount: round2(rand(400, 1800)),
+                category: 'freelance',
+                type: 'income',
+                date: monthStart(i, randInt(5, 20)),
+                description: 'Freelance project',
+            });
+        }
+    }
 
     for (let i = MONTHS - 1; i >= 0; i--) {
         push({

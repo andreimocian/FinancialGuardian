@@ -33,6 +33,12 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    type: {
+        type: String,
+        enum: ['expense', 'income'],
+        default: 'expense',
+        index: true,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);
