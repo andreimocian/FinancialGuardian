@@ -7,7 +7,7 @@ async function request(path: string, options: RequestInit = {}) {
       'Content-Type': 'application/json',
       ...options.headers,
     },
-    credentials: 'include', // 🔥 REQUIRED for cookies
+    credentials: 'include',
   })
 
   const data = await res.json()
@@ -18,6 +18,8 @@ async function request(path: string, options: RequestInit = {}) {
 
   return data
 }
+
+/* ───────────────────────── AUTH ───────────────────────── */
 
 export const authApi = {
   signup: (data: any) =>
@@ -39,4 +41,10 @@ export const authApi = {
 
   me: () =>
     request('/auth/me'),
+}
+
+/* ───────────────────── TRANSACTIONS ───────────────────── */
+
+export const transactionApi = {
+  getAll: () => request('/transactions'),
 }
