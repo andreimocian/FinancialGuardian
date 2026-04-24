@@ -2,28 +2,18 @@ import { forwardRef } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '../../../lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface SectionCardProps extends HTMLMotionProps<'div'> {
-  /** Card title shown in the header */
   title?: string
-  /** Subtitle / description beneath the title */
   description?: string
-  /** Actions rendered in the top-right of the header (buttons, badges, etc.) */
   headerActions?: React.ReactNode
-  /** Content below the header divider */
   children?: React.ReactNode
-  /** Remove the default padding from the body (useful for flush tables/lists) */
   noPadding?: boolean
-  /** Show a subtle AI-thinking shimmer animation */
   loading?: boolean
-  /** Visual accent: none (default), teal (success/on-track), amber (warning/drift) */
   accent?: 'none' | 'teal' | 'amber' | 'coral'
   className?: string
   bodyClassName?: string
 }
 
-// ─── Accent map ───────────────────────────────────────────────────────────────
 
 const accentBorder: Record<NonNullable<SectionCardProps['accent']>, string> = {
   none: '',
@@ -32,21 +22,19 @@ const accentBorder: Record<NonNullable<SectionCardProps['accent']>, string> = {
   coral: 'border-t-[2px] border-t-rose-400',
 }
 
-// ─── Shimmer ─────────────────────────────────────────────────────────────────
 
 function Shimmer() {
   return (
     <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
       <motion.div
-        className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/40 dark:via-white/5 to-transparent"
-        animate={{ translateX: ['−100%', '200%'] }}
-        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', repeatDelay: 0.4 }}
+        className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 dark:via-white/5 to-transparent"
+        animate={{ x: ['-100%', '200%'] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
       />
     </div>
   )
 }
 
-// ─── SectionCard ─────────────────────────────────────────────────────────────
 
 export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
   function SectionCard(
@@ -71,7 +59,7 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
         ref={ref}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.28 }}
         className={cn(
           'relative rounded-2xl overflow-hidden',
           'bg-white dark:bg-neutral-900',
@@ -86,8 +74,7 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
         {hasHeader && (
           <div
             className={cn(
-              'flex items-start justify-between gap-4',
-              'px-6 py-4',
+              'flex items-start justify-between gap-4 px-6 py-4',
               children && 'border-b border-stone-100 dark:border-neutral-800',
             )}
           >
@@ -99,7 +86,7 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
                   </h2>
                 )}
                 {description && (
-                  <p className="text-[13px] text-stone-400 dark:text-neutral-500 mt-0.5 leading-snug">
+                  <p className="text-[13px] text-stone-400 dark:text-neutral-500 mt-0.5">
                     {description}
                   </p>
                 )}
@@ -107,7 +94,7 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
             )}
 
             {headerActions && (
-              <div className="flex items-center gap-2 shrink-0 mt-0.5">
+              <div className="flex items-center gap-2 shrink-0">
                 {headerActions}
               </div>
             )}
@@ -124,8 +111,6 @@ export const SectionCard = forwardRef<HTMLDivElement, SectionCardProps>(
   },
 )
 
-// ─── SectionCard.Group ────────────────────────────────────────────────────────
-// Staggered grid of SectionCards — use for dashboard layouts
 
 interface SectionCardGroupProps {
   children: React.ReactNode
