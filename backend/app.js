@@ -3,12 +3,18 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const authRoutes = require('./routes/authRoutes');
+const cors = require('cors');
 
 const app = express();
 
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+
+app.use(cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
