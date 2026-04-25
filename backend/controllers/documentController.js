@@ -2,9 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const Document = require('../models/documentModel');
 const Obligation = require('../models/obligationModel');
-const { extractObligationFromPdf } = require('../services/pdfExtractor');
+const Contract = require('../models/contractModel');
+const {
+    extractObligationFromPdf,
+    extractContractFromPdf,
+} = require('../services/pdfExtractor');
 
-const VALID_TYPES = ['lease', 'utility'];
+const VALID_TYPES = ['lease', 'utility', 'contract'];
 const BACKEND_ROOT = path.join(__dirname, '..');
 
 const toRelative = (absPath) =>
@@ -34,6 +38,43 @@ exports.uploadDocument = async (req, res) => {
             type,
             status: 'pending',
         });
+
+        if (type === 'contract') {
+            let extracted;
+            try {
+                extracted = await extractContractFromPdf(req.file.path);
+            } catch (err) {
+                document.status = 'failed';
+                document.extractionError = err.message;
+                await document.save();
+                return res.status(502).json({
+                    message: 'PDF extraction failed',
+                    error: err.message,
+                    document,
+                });
+            }
+
+            const contract = await Contract.create({
+                userId: req.user._id,
+                documentId: document._id,
+                provider: extracted.provider,
+                startDate: extracted.startDate,
+                endDate: extracted.endDate,
+                noticePeriodDays: extracted.noticePeriodDays,
+                monthlyAmount: extracted.monthlyAmount,
+                currency: extracted.currency || 'EUR',
+                cancellationTerms: extracted.cancellationTerms,
+                autoRenew: extracted.autoRenew,
+                description: extracted.description,
+                confidence: extracted.confidence,
+            });
+
+            document.status = 'extracted';
+            document.contractId = contract._id;
+            await document.save();
+
+            return res.status(201).json({ status: 'success', document, contract });
+        }
 
         let extracted;
         try {
@@ -96,8 +137,36 @@ exports.getDocument = async (req, res) => {
         const obligation = document.obligationId
             ? await Obligation.findById(document.obligationId)
             : null;
+        const contract = document.contractId
+            ? await Contract.findById(document.contractId)
+            : null;
 
-        res.status(200).json({ status: 'success', document, obligation });
+        res.status(200).json({ status: 'success', document, obligation, contract });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.downloadDocument = async (req, res) => {
+    try {
+        const document = await Document.findOne({
+            _id: req.params.id,
+            userId: req.user._id,
+        });
+        if (!document) return res.status(404).json({ message: 'Document not found' });
+
+        const absPath = toAbsolute(document.storedPath);
+        if (!fs.existsSync(absPath)) {
+            return res.status(410).json({ message: 'File no longer available on server' });
+        }
+
+        const inline = req.query.inline === 'true';
+        res.setHeader('Content-Type', document.mimeType || 'application/pdf');
+        res.setHeader(
+            'Content-Disposition',
+            `${inline ? 'inline' : 'attachment'}; filename="${encodeURIComponent(document.filename)}"`
+        );
+        fs.createReadStream(absPath).pipe(res);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
@@ -113,6 +182,9 @@ exports.deleteDocument = async (req, res) => {
 
         if (document.obligationId) {
             await Obligation.findByIdAndDelete(document.obligationId);
+        }
+        if (document.contractId) {
+            await Contract.findByIdAndDelete(document.contractId);
         }
         await fs.promises.unlink(toAbsolute(document.storedPath)).catch(() => {});
 

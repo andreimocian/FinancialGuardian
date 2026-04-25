@@ -21,7 +21,7 @@ const documentSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['lease', 'utility'],
+        enum: ['lease', 'utility', 'contract'],
         required: true,
     },
     status: {
@@ -35,6 +35,10 @@ const documentSchema = new mongoose.Schema({
     obligationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Obligation',
+    },
+    contractId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Contract',
     },
 }, { timestamps: true });
 

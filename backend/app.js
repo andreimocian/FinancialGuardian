@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const obligationRoutes = require('./routes/obligationRoutes');
+const contractRoutes = require('./routes/contractRoutes');
 const timelineRoutes = require('./routes/timelineRoutes');
 const cors = require('cors');
 
@@ -28,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/documents', documentRoutes);
 app.use('/api/obligations', obligationRoutes);
+app.use('/api/contracts', contractRoutes);
 app.use('/api/timeline', timelineRoutes);
 
 app.get('/', (req, res) => {
