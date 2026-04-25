@@ -12,6 +12,7 @@ const reminderRoutes = require('./routes/reminderRoutes');
 const savingsGoalRoutes = require('./routes/savingsGoalRoutes');
 const cors = require('cors');
 
+
 const app = express();
 
 if (process.env.NODE_ENV === 'development') {
