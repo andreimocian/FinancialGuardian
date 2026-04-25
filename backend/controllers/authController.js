@@ -9,6 +9,7 @@ const attachCookie = (res, token) => {
     res.cookie('jwt', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         sameSite: 'strict',
         maxAge: 90 * 24 * 60 * 60 * 1000,
     });
@@ -60,7 +61,11 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-    res.cookie('jwt', 'loggedout', { httpOnly: true, maxAge: 1000 });
+    res.cookie('jwt', 'loggedout', { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        maxAge: 1000 });
     res.status(200).json({ status: 'success' });
 };
 
