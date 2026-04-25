@@ -3,6 +3,7 @@ import { useSafeToSpend } from './hooks/useSafeToSpend'
 import { useGoals } from './hooks/useGoals'
 import { useSpendingChat } from './hooks/useSpendingChat'
 import { SafeToSpendCard } from './components/SafeToSpendCard'
+import { DailyLimitCard } from './components/DailyLimitPanel'
 import { GoalsPanel } from './components/GoalsPanel'
 import { ChatPanel } from './components/ChatPanel'
 
@@ -41,13 +42,20 @@ export default function SafeToSpend() {
         </motion.div>
 
         {loading ? (
-          <div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />
+          <>
+            <div className="h-64 rounded-2xl bg-white/[0.03] animate-pulse" />
+            <div className="h-52 rounded-2xl bg-white/[0.03] animate-pulse" />
+          </>
         ) : error ? (
           <div className="bg-rose-500/[0.07] border border-rose-500/20 rounded-2xl p-6 text-center">
             <p className="text-[13px] text-rose-400">{error}</p>
           </div>
         ) : snapshot ? (
-          <SafeToSpendCard snapshot={snapshot} />
+          <>
+            <SafeToSpendCard snapshot={snapshot} />
+
+            <DailyLimitCard snapshot={snapshot} />
+          </>
         ) : null}
 
         <GoalsPanel
