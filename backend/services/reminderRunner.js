@@ -12,6 +12,7 @@ async function sendDigestToUser(user) {
         to: user.email,
         subject: digest.subject,
         text: digest.text,
+        ics: digest.ics,
     });
 
     return { sent: true, counts: digest.counts };

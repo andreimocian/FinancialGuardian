@@ -1,3 +1,4 @@
+const { createEvents } = require('ics');
 const Obligation = require('../models/obligationModel');
 const Contract = require('../models/contractModel');
 
@@ -13,6 +14,68 @@ function dayLabel(n) {
 
 function isoDate(d) {
     return new Date(d).toISOString().slice(0, 10);
+}
+
+function dateToArray(d) {
+    const x = new Date(d);
+    return [x.getFullYear(), x.getMonth() + 1, x.getDate()];
+}
+
+function buildIcs({ bills, noticeDeadlines, contractsEnding }) {
+    const events = [];
+
+    for (const b of bills) {
+        const amt = b.amount != null ? `${b.amount} ${b.currency || 'EUR'}` : '';
+        events.push({
+            uid: `bill-${b._id}@financialguardian`,
+            title: `Bill due — ${b.provider || 'Bill'}${amt ? ' ' + amt : ''}`.trim(),
+            description: b.description || `Mark this bill as paid in FinancialGuardian.`,
+            start: dateToArray(b.dueDate),
+            duration: { days: 1 },
+            categories: ['FinancialGuardian', 'bill'],
+            alarms: [
+                { action: 'display', description: 'Bill due tomorrow', trigger: { hours: 24, before: true } },
+            ],
+            productId: 'FinancialGuardian',
+        });
+    }
+
+    for (const n of noticeDeadlines) {
+        events.push({
+            uid: `notice-${n.contract._id}@financialguardian`,
+            title: `Notice deadline — ${n.contract.provider || 'Contract'}`,
+            description: n.contract.cancellationTerms
+                || `Last day to give notice if you want to end the contract on ${isoDate(n.contract.endDate)}.`,
+            start: dateToArray(n.eventDate),
+            duration: { days: 1 },
+            categories: ['FinancialGuardian', 'notice'],
+            alarms: [
+                { action: 'display', description: 'Notice deadline tomorrow', trigger: { hours: 24, before: true } },
+            ],
+            productId: 'FinancialGuardian',
+        });
+    }
+
+    for (const u of contractsEnding) {
+        events.push({
+            uid: `contract-${u.contract._id}@financialguardian`,
+            title: `Contract ends — ${u.contract.provider || 'Contract'}`,
+            description: u.contract.description || `Contract ends today.`,
+            start: dateToArray(u.eventDate),
+            duration: { days: 1 },
+            categories: ['FinancialGuardian', 'contract'],
+            alarms: [
+                { action: 'display', description: 'Contract ends tomorrow', trigger: { hours: 24, before: true } },
+            ],
+            productId: 'FinancialGuardian',
+        });
+    }
+
+    if (!events.length) return null;
+
+    const { value, error } = createEvents(events);
+    if (error) throw error;
+    return value;
 }
 
 async function buildDigestForUser(userId, { daysAhead = 14, fromDate = new Date() } = {}) {
@@ -81,11 +144,16 @@ async function buildDigestForUser(userId, { daysAhead = 14, fromDate = new Date(
         lines.push('');
     }
 
+    lines.push('Tip: open the attached calendar invite to add all events to your calendar in one click.');
+    lines.push('');
     lines.push('— FinancialGuardian');
+
+    const ics = buildIcs({ bills, noticeDeadlines, contractsEnding });
 
     return {
         subject,
         text: lines.join('\n'),
+        ics,
         counts: {
             bills: bills.length,
             noticeDeadlines: noticeDeadlines.length,
