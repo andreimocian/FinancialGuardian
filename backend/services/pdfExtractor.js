@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { GoogleGenAI, Type } = require('@google/genai');
 
 const OBLIGATION_PROMPT = `You are an extraction engine that reads a rental or utility document and outputs a single JSON object describing the next payment owed.
@@ -59,14 +58,16 @@ const contractSchema = {
     required: ['confidence'],
 };
 
-async function callGemini(filePath, systemPrompt, userPrompt, responseSchema) {
+async function callGemini(buffer, systemPrompt, userPrompt, responseSchema) {
     if (!process.env.GEMINI_API_KEY) {
         throw new Error('GEMINI_API_KEY is not set');
     }
+    if (!Buffer.isBuffer(buffer)) {
+        throw new Error('Expected a Buffer for the PDF input');
+    }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const fileBytes = await fs.promises.readFile(filePath);
-    const base64 = fileBytes.toString('base64');
+    const base64 = buffer.toString('base64');
 
     const result = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
@@ -95,12 +96,12 @@ async function callGemini(filePath, systemPrompt, userPrompt, responseSchema) {
     }
 }
 
-async function extractObligationFromPdf(filePath, docType) {
+async function extractObligationFromPdf(buffer, docType) {
     const userInstruction = docType === 'lease'
         ? 'Extract the next rent payment from this rental/lease contract.'
         : 'Extract the payment information from this utility document.';
 
-    const parsed = await callGemini(filePath, OBLIGATION_PROMPT, userInstruction, obligationSchema);
+    const parsed = await callGemini(buffer, OBLIGATION_PROMPT, userInstruction, obligationSchema);
 
     return {
         provider: parsed.provider ?? null,
@@ -112,9 +113,9 @@ async function extractObligationFromPdf(filePath, docType) {
     };
 }
 
-async function extractContractFromPdf(filePath) {
+async function extractContractFromPdf(buffer) {
     const parsed = await callGemini(
-        filePath,
+        buffer,
         CONTRACT_PROMPT,
         'Extract the contract overview from this service contract document.',
         contractSchema

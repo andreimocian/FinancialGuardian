@@ -11,10 +11,6 @@ const documentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    storedPath: {
-        type: String,
-        required: true,
-    },
     mimeType: {
         type: String,
         default: 'application/pdf',
