@@ -4,6 +4,9 @@ const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const authRoutes = require('./routes/authRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const obligationRoutes = require('./routes/obligationRoutes');
+const timelineRoutes = require('./routes/timelineRoutes');
 const cors = require('cors');
 
 const app = express();
@@ -23,6 +26,9 @@ app.use(passport.initialize());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/obligations', obligationRoutes);
+app.use('/api/timeline', timelineRoutes);
 
 app.get('/', (req, res) => {
     res.status(200).json({
