@@ -9,6 +9,7 @@ const obligationRoutes = require('./routes/obligationRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const timelineRoutes = require('./routes/timelineRoutes');
 const reminderRoutes = require('./routes/reminderRoutes');
+const savingsGoalRoutes = require('./routes/savingsGoalRoutes');
 const cors = require('cors');
 
 const app = express();
@@ -33,6 +34,7 @@ app.use('/api/obligations', obligationRoutes);
 app.use('/api/contracts', contractRoutes);
 app.use('/api/timeline', timelineRoutes);
 app.use('/api/reminders', reminderRoutes);
+app.use('/api/goals', savingsGoalRoutes);
 
 app.get('/', (req, res) => {
     res.status(200).json({
