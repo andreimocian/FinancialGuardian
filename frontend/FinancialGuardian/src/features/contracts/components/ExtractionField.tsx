@@ -29,7 +29,6 @@ export function ExtractionField({ label, fieldKey, value, confidence, onChange }
 
   return (
     <div className="flex items-start justify-between gap-4 px-5 py-3.5 group hover:bg-white/[0.02] transition-colors">
-      {/* Label */}
       <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
         <span className="text-[12px] text-white/40">{label}</span>
         <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md border ${confidenceStyles[confidence]}`}>
@@ -37,7 +36,6 @@ export function ExtractionField({ label, fieldKey, value, confidence, onChange }
         </span>
       </div>
 
-      {/* Value / inline editor */}
       <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
         {editing ? (
           <div className="flex items-center gap-2 w-full justify-end">

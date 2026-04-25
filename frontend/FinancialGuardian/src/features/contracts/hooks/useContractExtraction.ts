@@ -73,7 +73,6 @@ export function useContractExtraction(): UseContractExtractionReturn {
     }
   }, [])
 
-  // _fileId is unused — backend handles extraction during upload, no real SSE
   const startStream = useCallback((_fileId: string) => {
     closeStream()
     setFields({})

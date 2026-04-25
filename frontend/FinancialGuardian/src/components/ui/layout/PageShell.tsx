@@ -2,7 +2,6 @@ import { useState, createContext, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type NavItem = {
   id: string
@@ -18,7 +17,6 @@ type PageShellContextValue = {
   setActiveNav:   (id: string) => void
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
 
 const PageShellContext = createContext<PageShellContextValue | null>(null)
 
@@ -28,7 +26,6 @@ export function usePageShell() {
   return ctx
 }
 
-// ─── Variants ─────────────────────────────────────────────────────────────────
 
 const sidebarVariants = {
   open:   { width: 220, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
@@ -40,7 +37,6 @@ const labelVariants = {
   closed: { opacity: 0, x: -6, transition: { duration: 0.1 } },
 }
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 interface SidebarProps {
   navItems: NavItem[]
@@ -64,7 +60,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
       initial={false}
       className="relative flex flex-col h-full shrink-0 overflow-hidden bg-[#0c0c0f] border-r border-white/[0.06]"
     >
-      {/* Logo + collapse toggle */}
       <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-white/[0.06]">
         <AnimatePresence mode="wait">
           {sidebarOpen && (
@@ -97,7 +92,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
         </button>
       </div>
 
-      {/* Nav items */}
       <nav className="flex flex-col gap-1 px-2 py-4 flex-1 overflow-y-auto overflow-x-hidden">
         {navItems.map((item) => {
           const isActive = activeNav === item.id
@@ -114,7 +108,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
                   : 'text-white/30 hover:text-white/60 hover:bg-white/[0.05]',
               )}
             >
-              {/* Active pip */}
               {isActive && (
                 <motion.span
                   layoutId="nav-pip"
@@ -134,7 +127,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
                 {item.label}
               </motion.span>
 
-              {/* Badge */}
               {item.badge !== undefined && sidebarOpen && (
                 <motion.span
                   variants={labelVariants}
@@ -155,7 +147,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer slot */}
       {footer && (
         <div className="px-2 py-3 border-t border-white/[0.06] shrink-0">
           {footer}
@@ -165,7 +156,6 @@ function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
   )
 }
 
-// ─── PageShell ────────────────────────────────────────────────────────────────
 
 interface PageShellProps {
   navItems:           NavItem[]
@@ -211,7 +201,6 @@ export function PageShell({
   )
 }
 
-// ─── CollapseIcon ─────────────────────────────────────────────────────────────
 
 function CollapseIcon({ open }: { open: boolean }) {
   return (

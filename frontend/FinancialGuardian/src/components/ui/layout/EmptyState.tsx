@@ -127,7 +127,6 @@ export function EmptyState({
         className,
       )}
     >
-      {/* Icon / dots */}
       <div
         className={cn(
           'flex items-center justify-center',
@@ -141,7 +140,6 @@ export function EmptyState({
         {variant === 'ai-working' ? <AiWorkingDots /> : icon}
       </div>
 
-      {/* Text */}
       <div className="max-w-[260px]">
         <p className="text-[14px] font-medium text-stone-700 dark:text-stone-300">
           {resolvedTitle}
@@ -151,7 +149,6 @@ export function EmptyState({
         </p>
       </div>
 
-      {/* Optional action */}
       {action && (
         <button
           onClick={action.onClick}

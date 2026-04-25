@@ -85,7 +85,6 @@ export function ExtractionResult({
       transition={{ duration: 0.3 }}
       className="bg-white/[0.04] border border-white/[0.07] rounded-2xl overflow-hidden"
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.07]">
         <div>
           <p className="text-[14px] font-medium text-white/85">Review extraction</p>
@@ -96,7 +95,6 @@ export function ExtractionResult({
         </span>
       </div>
 
-      {/* Fields */}
       <div className="divide-y divide-white/[0.04]">
         {DISPLAY_ORDER.map(key => {
           const label = FIELD_LABELS[key]
@@ -114,7 +112,6 @@ export function ExtractionResult({
         })}
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-3 px-5 py-4 border-t border-white/[0.07]">
         <motion.button
           whileHover={{ scale: 1.01 }}

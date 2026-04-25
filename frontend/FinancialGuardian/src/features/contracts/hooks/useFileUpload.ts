@@ -5,8 +5,6 @@ import type { Obligation, UploadedFile } from '../types'
 const ACCEPTED_TYPES = ['application/pdf', 'application/zip', 'application/x-zip-compressed']
 const MAX_SIZE_MB = 20
 
-// Default type sent alongside the file — user can change this via a selector
-// in the UI if needed. The Postman collection shows 'utility' as the example.
 export const OBLIGATION_TYPES = [
   'utility',
   'lease',
@@ -54,8 +52,6 @@ export function useFileUpload() {
     setFiles(prev => prev.filter(f => f.id !== id))
   }, [])
 
-  // Upload all idle files to POST /api/documents
-  // Backend runs the AI agent and returns the obligation directly — no SSE needed
   const uploadAll = useCallback(async () => {
     const idle = files.filter(f => f.status === 'idle')
 
@@ -64,7 +60,6 @@ export function useFileUpload() {
         updateFile(entry.id, { status: 'uploading', progress: 0 })
 
         try {
-          // Show extracting state while waiting for backend AI response
           updateFile(entry.id, { status: 'extracting', progress: 100 })
 
           const res = await contractApi.upload(
@@ -73,7 +68,6 @@ export function useFileUpload() {
             (pct) => updateFile(entry.id, { progress: pct }),
           )
 
-          // Backend returns the created obligation directly
           updateFile(entry.id, {
             status: 'done',
             result: res.obligation as Obligation,

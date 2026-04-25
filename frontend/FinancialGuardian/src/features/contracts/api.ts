@@ -14,9 +14,6 @@ async function request(path: string, options: RequestInit = {}) {
 }
 
 export const contractApi = {
-  // POST /api/documents — multipart/form-data: file + type
-  // Agent runs server-side, obligation created automatically
-  // Returns { status, obligation }
   upload: async (
     file: File,
     type: string,
@@ -52,23 +49,18 @@ export const contractApi = {
     })
   },
 
-  // GET /api/obligations
   getAll: (): Promise<{ obligations: Obligation[] }> =>
     request('/obligations'),
 
-  // DELETE /api/obligations/:id
   remove: (id: string) =>
     request(`/obligations/${id}`, { method: 'DELETE' }),
 
-  // POST /api/obligations/:id/pay
   markPaid: (id: string) =>
     request(`/obligations/${id}/pay`, { method: 'POST' }),
 
-  // POST /api/obligations/:id/unpay
   markUnpaid: (id: string) =>
     request(`/obligations/${id}/unpay`, { method: 'POST' }),
 
-  // GET /api/timeline — unpaid bills as timeline events
   getTimeline: (): Promise<{ events: unknown[] }> =>
     request('/timeline'),
 }

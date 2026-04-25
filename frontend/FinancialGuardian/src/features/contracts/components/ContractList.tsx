@@ -108,12 +108,10 @@ export function ContractList({ refreshKey }: ContractListProps) {
                   : 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.05]'
               }`}
             >
-              {/* Type icon */}
               <div className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center text-[16px] shrink-0">
                 {TYPE_ICON[o.contractType ?? 'other'] ?? '📄'}
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`text-[13.5px] font-medium truncate ${o.paid ? 'text-white/40 line-through' : 'text-white/80'}`}>
@@ -131,7 +129,6 @@ export function ContractList({ refreshKey }: ContractListProps) {
                 </p>
               </div>
 
-              {/* Due date */}
               {days !== null && (
                 <div className="text-right shrink-0">
                   <p className={`text-[12px] font-medium ${o.paid ? 'text-white/25' : urgencyColor(days)}`}>
@@ -149,7 +146,6 @@ export function ContractList({ refreshKey }: ContractListProps) {
                 </div>
               )}
 
-              {/* Mark paid / unpaid toggle */}
               <button
                 onClick={() => handleTogglePaid(o)}
                 disabled={toggling === o._id}
@@ -173,7 +169,6 @@ export function ContractList({ refreshKey }: ContractListProps) {
                 )}
               </button>
 
-              {/* Remove */}
               <button
                 onClick={() => handleRemove(o._id)}
                 disabled={removing === o._id}

@@ -30,13 +30,11 @@ export function Signup({ onSwitch }: { onSwitch: () => void }) {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#0c0c0f] overflow-hidden">
 
-      {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/3 right-1/3 w-[500px] h-[400px] rounded-full bg-teal-500/5 blur-[120px]" />
         <div className="absolute bottom-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-indigo-500/5 blur-[100px]" />
       </div>
 
-      {/* Subtle grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.025]"
         style={{
@@ -52,7 +50,6 @@ export function Signup({ onSwitch }: { onSwitch: () => void }) {
         className="relative w-full max-w-sm mx-4"
       >
 
-        {/* Logo + heading */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,7 +74,6 @@ export function Signup({ onSwitch }: { onSwitch: () => void }) {
           </p>
         </motion.div>
 
-        {/* Card */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -146,7 +142,6 @@ export function Signup({ onSwitch }: { onSwitch: () => void }) {
           </div>
         </motion.div>
 
-        {/* Switch */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

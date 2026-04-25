@@ -2,29 +2,20 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SplitPaneProps {
-  /** Left panel content — typically a list */
   list: React.ReactNode
-  /** Right panel content — detail view, or null to show the empty state */
   detail: React.ReactNode | null
-  /** Shown in the right panel when detail is null */
   emptyState?: React.ReactNode
-  /** Initial left panel width as a fraction (default 0.38) */
   initialSplit?: number
-  /** Minimum left width in px */
   minLeft?: number
-  /** Maximum left width as a fraction of container */
   maxLeftFraction?: number
-  /** Whether to stack vertically on small screens */
   stackBelow?: 'sm' | 'md' | 'lg'
   className?: string
   listClassName?: string
   detailClassName?: string
 }
 
-// ─── Drag handle ─────────────────────────────────────────────────────────────
 
 function DragHandle({ onDrag }: { onDrag: (dx: number) => void }) {
   const dragging = useRef(false)
@@ -70,9 +61,7 @@ function DragHandle({ onDrag }: { onDrag: (dx: number) => void }) {
         'select-none z-10',
       )}
     >
-      {/* Wider invisible hit area */}
       <div className="absolute inset-y-0 -inset-x-2" />
-      {/* Drag pill indicator */}
       <div
         className={cn(
           'absolute flex flex-col gap-[3px] opacity-0 group-hover:opacity-100 transition-opacity',
@@ -90,7 +79,6 @@ function DragHandle({ onDrag }: { onDrag: (dx: number) => void }) {
   )
 }
 
-// ─── Default empty state ──────────────────────────────────────────────────────
 
 function DefaultEmptyState() {
   return (
@@ -117,7 +105,6 @@ function DefaultEmptyState() {
   )
 }
 
-// ─── SplitPane ────────────────────────────────────────────────────────────────
 
 export function SplitPane({
   list,
@@ -153,7 +140,6 @@ export function SplitPane({
       ref={containerRef}
       className={cn('flex h-full overflow-hidden', className)}
     >
-      {/* Left — list */}
       <div
         style={{ width: leftPercent }}
         className={cn(
@@ -167,7 +153,6 @@ export function SplitPane({
 
       <DragHandle onDrag={handleDrag} />
 
-      {/* Right — detail */}
       <div
         style={{ width: rightPercent }}
         className={cn(

@@ -35,7 +35,6 @@ function StatusIcon({ status }: { status: UploadedFile['status'] }) {
       </div>
     )
   }
-  // uploading / idle
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/30">
       <path d="M14 2H6a2 2 0 00-2 2v16" /><path d="M14 2v6h6" />
@@ -69,12 +68,10 @@ export function UploadProgress({ files, onRemove }: UploadProgressProps) {
             className="bg-white/[0.04] border border-white/[0.07] rounded-xl overflow-hidden"
           >
             <div className="flex items-center gap-3 px-4 py-3">
-              {/* Status icon */}
               <div className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center shrink-0">
                 <StatusIcon status={f.status} />
               </div>
 
-              {/* File name + status */}
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-medium text-white/80 truncate">{f.file.name}</p>
                 <p className={`text-[11px] mt-0.5 ${f.status === 'error' ? 'text-rose-400' : f.status === 'done' ? 'text-teal-400' : 'text-white/30'}`}>
@@ -82,12 +79,10 @@ export function UploadProgress({ files, onRemove }: UploadProgressProps) {
                 </p>
               </div>
 
-              {/* File size */}
               <span className="text-[11px] text-white/25 shrink-0">
                 {(f.file.size / 1024 / 1024).toFixed(1)} MB
               </span>
 
-              {/* Remove — only when idle or error */}
               {(f.status === 'idle' || f.status === 'error') && (
                 <button
                   onClick={() => onRemove(f.id)}
@@ -100,7 +95,6 @@ export function UploadProgress({ files, onRemove }: UploadProgressProps) {
               )}
             </div>
 
-            {/* Progress bar — only while uploading */}
             {f.status === 'uploading' && (
               <div className="h-[2px] bg-white/[0.06] mx-4 mb-3 rounded-full overflow-hidden">
                 <motion.div
@@ -112,7 +106,6 @@ export function UploadProgress({ files, onRemove }: UploadProgressProps) {
               </div>
             )}
 
-            {/* Extracting — indeterminate shimmer */}
             {f.status === 'extracting' && (
               <div className="h-[2px] bg-white/[0.06] mx-4 mb-3 rounded-full overflow-hidden">
                 <motion.div

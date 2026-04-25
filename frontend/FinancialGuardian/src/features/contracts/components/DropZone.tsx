@@ -51,7 +51,6 @@ export function DropZone({ onFiles, disabled }: DropZoneProps) {
         onChange={e => handleFiles(e.target.files)}
       />
 
-      {/* Icon */}
       <motion.div
         animate={{ scale: isDragging ? 1.12 : 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
@@ -63,7 +62,6 @@ export function DropZone({ onFiles, disabled }: DropZoneProps) {
         </svg>
       </motion.div>
 
-      {/* Text */}
       <div className="text-center">
         <AnimatePresence mode="wait">
           {isDragging ? (
@@ -94,7 +92,6 @@ export function DropZone({ onFiles, disabled }: DropZoneProps) {
         </AnimatePresence>
       </div>
 
-      {/* Browse link */}
       {!isDragging && (
         <span className="text-[13px] text-teal-400 hover:text-teal-300 transition-colors font-medium">
           or browse files

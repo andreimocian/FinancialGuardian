@@ -7,7 +7,6 @@ import { SpendingCharts } from './components/SpendingCharts'
 import { useFileUpload, OBLIGATION_TYPES } from './hooks/useFileUpload'
 import { contractApi } from './api'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type TimelineEvent = {
   _id:          string
@@ -20,7 +19,6 @@ type TimelineEvent = {
   description?: string
 }
 
-// ─── Urgency ──────────────────────────────────────────────────────────────────
 
 type Urgency = 'critical' | 'warning' | 'upcoming' | 'safe'
 
@@ -43,7 +41,6 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-// ─── Timeline row ─────────────────────────────────────────────────────────────
 
 function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: number; isLast: boolean }) {
   const urgency = getUrgency(event.daysLeft)
@@ -82,7 +79,6 @@ function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: nu
   )
 }
 
-// ─── Bills feature ────────────────────────────────────────────────────────────
 
 export default function Bills() {
   const upload = useFileUpload()
@@ -119,7 +115,6 @@ export default function Bills() {
 
       <div className="relative max-w-3xl mx-auto space-y-8">
 
-        {/* Header */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
@@ -133,7 +128,6 @@ export default function Bills() {
           <p className="text-white/40 text-[13px] mt-0.5">Upload a bill — guardian reads it and tracks your obligations</p>
         </motion.div>
 
-        {/* Upload */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-4">
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-[12px] text-white/35 uppercase tracking-wider shrink-0">Bill type</span>
@@ -167,10 +161,8 @@ export default function Bills() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Spending charts */}
         <SpendingCharts refreshKey={refreshKey} />
 
-        {/* Timeline */}
         {(tlLoading || timeline.length > 0) && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.4 }}
             className="bg-white/[0.04] border border-white/[0.07] rounded-2xl overflow-hidden">
@@ -198,7 +190,6 @@ export default function Bills() {
           </motion.div>
         )}
 
-        {/* Saved bills */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4 }}
           className="bg-white/[0.04] border border-white/[0.07] rounded-2xl overflow-hidden">
           <div className="px-5 py-4 border-b border-white/[0.07]">
