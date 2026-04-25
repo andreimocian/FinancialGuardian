@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id:    'contracts',
-    label: 'Contracts',
+    label: 'Bills',
     icon: (
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5L10 2z" />
