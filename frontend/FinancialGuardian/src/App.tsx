@@ -6,12 +6,13 @@ import { Signup } from '@/features/auth/Signup'
 import Bills from '@/features/contracts'
 import ContractsPage from '@/features/contractsPage'
 import Watchdog from '@/features/watchdog'
+import SafeToSpend from '@/features/safeToSpend'
 import { PageShell } from '@/components/ui/layout/PageShell'
 import type { NavItem } from '@/components/ui/layout/PageShell'
 import { AnimatePresence, motion } from 'framer-motion'
 
 type Mode    = 'login' | 'signup'
-type Feature = 'financial' | 'bills' | 'contractsPage' | 'watchdog'
+type Feature = 'financial' | 'bills' | 'contractsPage' | 'watchdog' | 'safeToSpend'
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 
@@ -46,8 +47,16 @@ const NAV_ITEMS: NavItem[] = [
     id: 'watchdog', label: 'Watchdog',
     icon: (
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="8" cy="8" r="6" />
-        <path d="M8 5v3l2 2" />
+        <circle cx="8" cy="8" r="6" /><path d="M8 5v3l2 2" />
+      </svg>
+    ),
+  },
+  {
+    id: 'safeToSpend', label: 'Safe to spend',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8 2l5 2v4c0 3-2.5 5-5 6C5.5 13 3 11 3 8V4l5-2z" />
+        <path d="M6 8l1.5 1.5L10 6" />
       </svg>
     ),
   },
@@ -70,7 +79,8 @@ function LoadingScreen() {
         <div className="flex gap-1.5">
           {[0, 1, 2].map(i => (
             <motion.div key={i} className="w-1.5 h-1.5 rounded-full bg-teal-400"
-              animate={{ opacity: [0.2, 1, 0.2] }} transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }} />
+              animate={{ opacity: [0.2, 1, 0.2] }}
+              transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }} />
           ))}
         </div>
         <p className="text-[12px] text-white/25 tracking-widest uppercase">Restoring session</p>
@@ -98,6 +108,14 @@ function LogoutButton() {
 function AppShell() {
   const [active, setActive] = useState<Feature>('financial')
 
+  const PAGES: Record<Feature, React.ReactNode> = {
+    financial:     <FinancialFeature />,
+    bills:         <Bills />,
+    contractsPage: <ContractsPage />,
+    watchdog:      <Watchdog />,
+    safeToSpend:   <SafeToSpend />,
+  }
+
   return (
     <PageShell
       navItems={NAV_ITEMS}
@@ -107,26 +125,15 @@ function AppShell() {
       sidebarFooter={<LogoutButton />}
     >
       <AnimatePresence mode="wait">
-        {active === 'financial' && (
-          <motion.div key="financial" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-            <FinancialFeature />
-          </motion.div>
-        )}
-        {active === 'bills' && (
-          <motion.div key="bills" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-            <Bills />
-          </motion.div>
-        )}
-        {active === 'contractsPage' && (
-          <motion.div key="contractsPage" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-            <ContractsPage />
-          </motion.div>
-        )}
-        {active === 'watchdog' && (
-          <motion.div key="watchdog" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}>
-            <Watchdog />
-          </motion.div>
-        )}
+        <motion.div
+          key={active}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.25 }}
+        >
+          {PAGES[active]}
+        </motion.div>
       </AnimatePresence>
     </PageShell>
   )

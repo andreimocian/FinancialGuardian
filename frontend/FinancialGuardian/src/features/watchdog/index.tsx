@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useWatchdog } from './hooks/useWatchdog'
 import type { CategoryBreakdown, AggregatedPayment, WatchdogAlert, AlertSeverity, PaymentSource } from './types'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const SOURCE_LABEL: Record<PaymentSource, string> = {
   transaction: 'Transaction',
@@ -35,7 +34,6 @@ const SEVERITY_STYLES: Record<AlertSeverity, { card: string; dot: string; badge:
   },
 }
 
-// ─── Donut chart ──────────────────────────────────────────────────────────────
 
 function DonutChart({ breakdown, total }: { breakdown: CategoryBreakdown[]; total: number }) {
   const [hovered, setHovered] = useState<string | null>(null)
@@ -94,7 +92,6 @@ function DonutChart({ breakdown, total }: { breakdown: CategoryBreakdown[]; tota
         </svg>
       </div>
 
-      {/* Legend */}
       <div className="flex flex-col gap-2 flex-1 min-w-[160px]">
         {breakdown.slice(0, 9).map(cat => (
           <motion.div
@@ -118,7 +115,6 @@ function DonutChart({ breakdown, total }: { breakdown: CategoryBreakdown[]; tota
   )
 }
 
-// ─── Ranked payment row ───────────────────────────────────────────────────────
 
 function PaymentRow({ payment, index, maxAmount }: { payment: AggregatedPayment; index: number; maxAmount: number }) {
   const pct   = maxAmount > 0 ? (payment.amount / maxAmount) * 100 : 0
@@ -157,7 +153,6 @@ function PaymentRow({ payment, index, maxAmount }: { payment: AggregatedPayment;
   )
 }
 
-// ─── Alert card ───────────────────────────────────────────────────────────────
 
 function AlertCard({ alert, index }: { alert: WatchdogAlert; index: number }) {
   const styles = SEVERITY_STYLES[alert.severity]
@@ -190,7 +185,6 @@ function AlertCard({ alert, index }: { alert: WatchdogAlert; index: number }) {
   )
 }
 
-// ─── Gmail panel ──────────────────────────────────────────────────────────────
 
 function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
   const [expanded, setExpanded] = useState(false)
@@ -273,7 +267,6 @@ function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
           >
             <div className="px-5 pb-5 pt-4 space-y-5 border-t border-white/[0.06]">
 
-              {/* Preview — what would fire now */}
               {wouldFire.length > 0 && (
                 <div>
                   <p className="text-[11px] text-white/30 uppercase tracking-wider mb-3">
@@ -296,7 +289,6 @@ function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
                 </div>
               )}
 
-              {/* Rules */}
               <div>
                 <p className="text-[11px] text-white/30 uppercase tracking-wider mb-3">Notification rules</p>
                 <div className="space-y-2">
@@ -312,22 +304,6 @@ function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
                   ))}
                 </div>
               </div>
-
-              {/* OAuth CTA */}
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500/[0.07] border border-indigo-500/20">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="8" cy="8" r="6" />
-                  <path d="M8 5v3l2 2" />
-                </svg>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-medium text-indigo-300">Gmail OAuth required</p>
-                  <p className="text-[11px] text-indigo-400/50 mt-0.5">Connect your Google account to enable email notifications</p>
-                </div>
-                <button className="text-[11px] font-medium text-indigo-400 border border-indigo-500/30 px-2.5 py-1.5 rounded-lg hover:bg-indigo-500/10 transition-colors shrink-0">
-                  Connect
-                </button>
-              </div>
-
             </div>
           </motion.div>
         )}
@@ -336,7 +312,6 @@ function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
   )
 }
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function Skeleton() {
   return (
@@ -347,7 +322,6 @@ function Skeleton() {
   )
 }
 
-// ─── Watchdog page ────────────────────────────────────────────────────────────
 
 export default function Watchdog() {
   const { topPayments, breakdown, alerts, totalMonthly, loading, error } = useWatchdog()
@@ -358,7 +332,6 @@ export default function Watchdog() {
   return (
     <div className="min-h-screen bg-[#0c0c0f] text-white p-6 lg:p-8">
 
-      {/* Ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full bg-teal-500/4 blur-[140px]" />
         {criticalCount > 0 && (
@@ -368,7 +341,6 @@ export default function Watchdog() {
 
       <div className="relative max-w-3xl mx-auto space-y-8">
 
-        {/* Header */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-6 h-6 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
@@ -392,7 +364,6 @@ export default function Watchdog() {
           </div>
         ) : (
           <>
-            {/* Summary strip */}
             <motion.div
               initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
               className="grid grid-cols-3 gap-4"
@@ -424,7 +395,6 @@ export default function Watchdog() {
               </div>
             </motion.div>
 
-            {/* Donut chart */}
             {breakdown.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.4 }}
@@ -438,7 +408,6 @@ export default function Watchdog() {
               </motion.div>
             )}
 
-            {/* Top payments ranked list */}
             {topPayments.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.13, duration: 0.4 }}
@@ -456,7 +425,6 @@ export default function Watchdog() {
                   ))}
                 </div>
 
-                {/* Source legend */}
                 <div className="px-5 pb-4 flex gap-4 border-t border-white/[0.05] pt-3">
                   {(['transaction', 'bill'] as PaymentSource[]).map(src => (
                     <div key={src} className="flex items-center gap-1.5">
@@ -468,7 +436,6 @@ export default function Watchdog() {
               </motion.div>
             )}
 
-            {/* Alerts */}
             {alerts.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.4 }}
@@ -486,7 +453,6 @@ export default function Watchdog() {
               </motion.div>
             )}
 
-            {/* Gmail panel */}
             <GmailPanel alerts={alerts} />
           </>
         )}
