@@ -10,6 +10,15 @@ async function get(path: string) {
   return data
 }
 
+// ─── Current month bounds ─────────────────────────────────────────────────────
+
+function currentMonthBounds(): { start: Date; end: Date } {
+  const now   = new Date()
+  const start = new Date(now.getFullYear(), now.getMonth(), 1)
+  const end   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+  return { start, end }
+}
+
 export function useSafeToSpend() {
   const [snapshot, setSnapshot] = useState<FinancialSnapshot | null>(null)
   const [loading,  setLoading]  = useState(true)
@@ -29,7 +38,15 @@ export function useSafeToSpend() {
       const catMap = new Map<string, number>()
 
       if (txRes.status === 'fulfilled') {
-        const txs: any[] = txRes.value.transactions ?? []
+        const allTxs: any[] = txRes.value.transactions ?? []
+        const { start, end } = currentMonthBounds()
+
+        // Filter to current month only — avoid all-time totals skewing numbers
+        const txs = allTxs.filter(t => {
+          const d = new Date(t.date)
+          return d >= start && d <= end
+        })
+
         txs.forEach(t => {
           const amt = t.amount ?? 0
           if (t.type === 'income') {

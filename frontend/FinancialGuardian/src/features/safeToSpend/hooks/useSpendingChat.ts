@@ -5,10 +5,7 @@ const API_URL = 'http://localhost:3000/api'
 
 function uid() { return Math.random().toString(36).slice(2) }
 
-function buildSystemContext(
-  snapshot: FinancialSnapshot,
-  goals: SavingsGoal[],
-): string {
+function buildSystemContext(snapshot: FinancialSnapshot, goals: SavingsGoal[]): string {
   const catBreakdown = snapshot.expensesByCategory
     .slice(0, 8)
     .map(c => `  - ${c.category}: €${c.amount.toFixed(2)}`)
@@ -16,9 +13,7 @@ function buildSystemContext(
 
   const goalsList = goals.length > 0
     ? goals.map(g => {
-        const pct = g.targetAmount > 0
-          ? ((g.savedAmount / g.targetAmount) * 100).toFixed(0)
-          : '0'
+        const pct      = g.targetAmount > 0 ? ((g.savedAmount / g.targetAmount) * 100).toFixed(0) : '0'
         const deadline = g.deadline
           ? ` by ${new Date(g.deadline).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}`
           : ''
@@ -48,28 +43,25 @@ Keep responses under 200 words unless the user asks for more detail.`
 }
 
 function buildInitialMessage(snapshot: FinancialSnapshot, goals: SavingsGoal[]): string {
-  const hasGoals = goals.length > 0
+  const hasGoals  = goals.length > 0
   const goalNames = goals.map(g => `${g.emoji} ${g.name}`).join(', ')
-
   return hasGoals
     ? `Analyze my finances and give me a concrete savings plan to reach my goals: ${goalNames}. What's the fastest way to get there?`
     : `Analyze my spending and tell me where I can save money. My safe-to-spend is €${snapshot.safeToSpend.toFixed(2)}. What should I cut first?`
 }
 
-export function useSpendingChat(
-  snapshot: FinancialSnapshot | null,
-  goals: SavingsGoal[],
-) {
-  const [messages,  setMessages]  = useState<ChatMessage[]>([])
-  const [loading,   setLoading]   = useState(false)
-  const [started,   setStarted]   = useState(false)
-  const abortRef = useRef<AbortController | null>(null)
+export function useSpendingChat(snapshot: FinancialSnapshot | null, goals: SavingsGoal[]) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [loading,  setLoading]  = useState(false)
+  const [started,  setStarted]  = useState(false)
 
-  const addMessage = useCallback((role: ChatMessage['role'], content: string): ChatMessage => {
-    const msg: ChatMessage = { id: uid(), role, content, timestamp: new Date().toISOString() }
-    setMessages(prev => [...prev, msg])
-    return msg
-  }, [])
+  // Keep latest snapshot + goals in a ref so sendToAPI always uses current values
+  const snapshotRef = useRef(snapshot)
+  const goalsRef    = useRef(goals)
+  snapshotRef.current = snapshot
+  goalsRef.current    = goals
+
+  const abortRef = useRef<AbortController | null>(null)
 
   const sendToAPI = useCallback(async (history: { role: string; content: string }[]) => {
     abortRef.current?.abort()
@@ -89,12 +81,15 @@ export function useSpendingChat(
         signal:      abortRef.current.signal,
         body: JSON.stringify({
           messages: history,
-          system:   snapshot ? buildSystemContext(snapshot, goals) : '',
+          // Always use latest snapshot + goals via ref — not stale closure values
+          system: snapshotRef.current
+            ? buildSystemContext(snapshotRef.current, goalsRef.current)
+            : '',
         }),
       })
 
       if (!res.ok) throw new Error('AI request failed')
-      const data = await res.json()
+      const data  = await res.json()
       const reply = data.reply ?? data.message ?? 'Sorry, I could not generate a response.'
 
       setMessages(prev => prev.map(m =>
@@ -108,13 +103,15 @@ export function useSpendingChat(
           : m
       ))
     }
-  }, [snapshot, goals])
+  }, []) // no deps — reads from refs which are always current
 
+  // startAnalysis: no `started` guard — can be called again after goals change
   const startAnalysis = useCallback(async () => {
-    if (!snapshot || started) return
+    if (!snapshotRef.current) return
+
     setStarted(true)
 
-    const initialContent = buildInitialMessage(snapshot, goals)
+    const initialContent = buildInitialMessage(snapshotRef.current, goalsRef.current)
     const userMsg = { role: 'user', content: initialContent }
 
     setMessages([{
@@ -125,7 +122,13 @@ export function useSpendingChat(
     setLoading(true)
     await sendToAPI([userMsg])
     setLoading(false)
-  }, [snapshot, goals, started, sendToAPI])
+  }, [sendToAPI]) // no snapshot/goals deps — reads from refs
+
+  const addMessage = useCallback((role: ChatMessage['role'], content: string) => {
+    const msg: ChatMessage = { id: uid(), role, content, timestamp: new Date().toISOString() }
+    setMessages(prev => [...prev, msg])
+    return msg
+  }, [])
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || loading) return

@@ -33,7 +33,6 @@ function driftMessage(cat: string, ratio: number, count: number, merchant?: stri
 }
 
 export function DriftInsight({ drift, loading }: Props) {
-  // Show loading shimmer
   if (loading) {
     return (
       <div className="bg-teal-500/[0.07] border border-teal-500/20 rounded-2xl p-5 animate-pulse">
@@ -70,7 +69,6 @@ export function DriftInsight({ drift, loading }: Props) {
   return (
     <div className="space-y-2">
       <AnimatePresence>
-        {/* Primary drift card */}
         <motion.div
           key={top.category}
           initial={{ opacity: 0, y: 6 }}
