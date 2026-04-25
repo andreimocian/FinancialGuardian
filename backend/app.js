@@ -8,6 +8,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const obligationRoutes = require('./routes/obligationRoutes');
 const contractRoutes = require('./routes/contractRoutes');
 const timelineRoutes = require('./routes/timelineRoutes');
+const reminderRoutes = require('./routes/reminderRoutes');
 const cors = require('cors');
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/obligations', obligationRoutes);
 app.use('/api/contracts', contractRoutes);
 app.use('/api/timeline', timelineRoutes);
+app.use('/api/reminders', reminderRoutes);
 
 app.get('/', (req, res) => {
     res.status(200).json({
