@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import type { ChatMessage, FinancialSnapshot, SavingsGoal } from '../types'
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = import.meta.env.VITE_BACKEND_URL
 
 function uid() { return Math.random().toString(36).slice(2) }
 

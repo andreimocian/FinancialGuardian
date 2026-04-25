@@ -108,7 +108,7 @@ export function FinancialFeature() {
         // Fetch transactions + unpaid bills count in parallel
         const [txRes, billRes] = await Promise.allSettled([
           transactionApi.getAll(),
-          fetch('http://localhost:3000/api/obligations', { credentials: 'include' }).then(r => r.json()),
+          fetch(`${import.meta.env.VITE_BACKEND_URL}/obligations`, { credentials: 'include' }).then(r => r.json()),
         ])
 
         if (txRes.status === 'fulfilled') {

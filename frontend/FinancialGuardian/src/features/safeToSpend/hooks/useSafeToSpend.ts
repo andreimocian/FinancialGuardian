@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { FinancialSnapshot } from '../types'
 
-const API_URL = 'http://localhost:3000/api'
+const API_URL = import.meta.env.VITE_BACKEND_URL
 
 async function get(path: string) {
   const res = await fetch(`${API_URL}${path}`, { credentials: 'include' })
