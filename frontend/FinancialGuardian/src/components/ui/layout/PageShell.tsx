@@ -12,10 +12,10 @@ export type NavItem = {
 }
 
 type PageShellContextValue = {
-  sidebarOpen: boolean
+  sidebarOpen:    boolean
   setSidebarOpen: (open: boolean) => void
-  activeNav: string
-  setActiveNav: (id: string) => void
+  activeNav:      string
+  setActiveNav:   (id: string) => void
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -28,39 +28,44 @@ export function usePageShell() {
   return ctx
 }
 
-// ─── Sidebar ─────────────────────────────────────────────────────────────────
+// ─── Variants ─────────────────────────────────────────────────────────────────
 
 const sidebarVariants = {
-  open: { width: 220, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } },
-  closed: { width: 64, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } },
+  open:   { width: 220, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
+  closed: { width: 64,  transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
 }
 
 const labelVariants = {
-  open: { opacity: 1, x: 0, transition: { delay: 0.08, duration: 0.18 } },
+  open:   { opacity: 1, x: 0,  transition: { delay: 0.08, duration: 0.18 } },
   closed: { opacity: 0, x: -6, transition: { duration: 0.1 } },
 }
 
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+
 interface SidebarProps {
   navItems: NavItem[]
-  logo?: React.ReactNode
-  footer?: React.ReactNode
+  logo?:    React.ReactNode
+  footer?:  React.ReactNode
+  onNavChange?: (id: string) => void
 }
 
-function Sidebar({ navItems, logo, footer }: SidebarProps) {
+function Sidebar({ navItems, logo, footer, onNavChange }: SidebarProps) {
   const { sidebarOpen, setSidebarOpen, activeNav, setActiveNav } = usePageShell()
+
+  const handleNav = (id: string) => {
+    setActiveNav(id)
+    onNavChange?.(id)
+  }
 
   return (
     <motion.aside
       variants={sidebarVariants}
       animate={sidebarOpen ? 'open' : 'closed'}
       initial={false}
-      className={cn(
-        'relative flex flex-col h-full shrink-0 overflow-hidden',
-        'bg-white border-r border-stone-100 dark:bg-neutral-950 dark:border-neutral-800',
-      )}
+      className="relative flex flex-col h-full shrink-0 overflow-hidden bg-[#0c0c0f] border-r border-white/[0.06]"
     >
-      {/* Logo + toggle */}
-      <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-stone-100 dark:border-neutral-800">
+      {/* Logo + collapse toggle */}
+      <div className="flex items-center justify-between px-4 h-14 shrink-0 border-b border-white/[0.06]">
         <AnimatePresence mode="wait">
           {sidebarOpen && (
             <motion.div
@@ -71,8 +76,8 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
               className="overflow-hidden"
             >
               {logo ?? (
-                <span className="text-[15px] font-medium tracking-tight text-stone-900 dark:text-stone-100 whitespace-nowrap">
-                  guardian
+                <span className="text-[15px] font-medium tracking-tight text-white/90 whitespace-nowrap">
+                  guardian<span className="text-teal-400">.</span>
                 </span>
               )}
             </motion.div>
@@ -83,10 +88,8 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
           onClick={() => setSidebarOpen(!sidebarOpen)}
           aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           className={cn(
-            'flex items-center justify-center w-8 h-8 rounded-lg shrink-0',
-            'text-stone-400 hover:text-stone-700 hover:bg-stone-50',
-            'dark:text-neutral-500 dark:hover:text-neutral-200 dark:hover:bg-neutral-800',
-            'transition-colors duration-150',
+            'flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-colors duration-150',
+            'text-white/25 hover:text-white/60 hover:bg-white/[0.05]',
             !sidebarOpen && 'mx-auto',
           )}
         >
@@ -101,21 +104,21 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
           return (
             <button
               key={item.id}
-              onClick={() => setActiveNav(item.id)}
+              onClick={() => handleNav(item.id)}
               title={!sidebarOpen ? item.label : undefined}
               className={cn(
-                'relative flex items-center gap-3 w-full h-9 px-2.5 rounded-lg',
-                'text-left text-[13.5px] font-[450] transition-colors duration-150',
+                'relative flex items-center gap-3 w-full h-9 px-2.5 rounded-xl',
+                'text-left text-[13.5px] font-[450] transition-all duration-150',
                 isActive
-                  ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
-                  : 'text-stone-500 hover:bg-stone-50 hover:text-stone-800 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100',
+                  ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                  : 'text-white/30 hover:text-white/60 hover:bg-white/[0.05]',
               )}
             >
-              {/* Active indicator pip */}
+              {/* Active pip */}
               {isActive && (
                 <motion.span
                   layoutId="nav-pip"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-r-full bg-teal-400"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 rounded-r-full bg-teal-400"
                 />
               )}
 
@@ -140,8 +143,8 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
                     'ml-auto shrink-0 min-w-[18px] h-[18px] px-1 rounded-full',
                     'flex items-center justify-center text-[11px] font-medium',
                     isActive
-                      ? 'bg-white/20 text-white'
-                      : 'bg-stone-100 text-stone-500 dark:bg-neutral-700 dark:text-neutral-300',
+                      ? 'bg-teal-400/20 text-teal-300'
+                      : 'bg-white/[0.07] text-white/40',
                   )}
                 >
                   {item.badge}
@@ -154,7 +157,7 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
 
       {/* Footer slot */}
       {footer && (
-        <div className="px-2 py-3 border-t border-stone-100 dark:border-neutral-800 shrink-0">
+        <div className="px-2 py-3 border-t border-white/[0.06] shrink-0">
           {footer}
         </div>
       )}
@@ -162,74 +165,47 @@ function Sidebar({ navItems, logo, footer }: SidebarProps) {
   )
 }
 
-// ─── Top bar ─────────────────────────────────────────────────────────────────
-
-interface TopBarProps {
-  title?: string
-  actions?: React.ReactNode
-}
-
-function TopBar({ title, actions }: TopBarProps) {
-  return (
-    <header className="flex items-center justify-between h-14 px-6 shrink-0 border-b border-stone-100 dark:border-neutral-800 bg-white dark:bg-neutral-950">
-      {title && (
-        <h1 className="text-[15px] font-medium text-stone-800 dark:text-stone-100">
-          {title}
-        </h1>
-      )}
-      {actions && (
-        <div className="flex items-center gap-2 ml-auto">{actions}</div>
-      )}
-    </header>
-  )
-}
-
 // ─── PageShell ────────────────────────────────────────────────────────────────
 
 interface PageShellProps {
-  navItems: NavItem[]
-  logo?: React.ReactNode
-  sidebarFooter?: React.ReactNode
-  topBarTitle?: string
-  topBarActions?: React.ReactNode
-  defaultActiveNav?: string
+  navItems:           NavItem[]
+  logo?:              React.ReactNode
+  sidebarFooter?:     React.ReactNode
+  defaultActiveNav?:  string
   defaultSidebarOpen?: boolean
-  children: React.ReactNode
-  className?: string
+  onNavChange?:       (id: string) => void
+  children:           React.ReactNode
+  className?:         string
 }
 
 export function PageShell({
   navItems,
   logo,
   sidebarFooter,
-  topBarTitle,
-  topBarActions,
   defaultActiveNav,
   defaultSidebarOpen = true,
+  onNavChange,
   children,
   className,
 }: PageShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(defaultSidebarOpen)
-  const [activeNav, setActiveNav] = useState(defaultActiveNav ?? navItems[0]?.id ?? '')
+  const [activeNav,   setActiveNav]   = useState(defaultActiveNav ?? navItems[0]?.id ?? '')
 
   return (
     <PageShellContext.Provider value={{ sidebarOpen, setSidebarOpen, activeNav, setActiveNav }}>
-      <div
-        className={cn(
-          'flex h-screen w-full overflow-hidden',
-          'bg-stone-50 dark:bg-neutral-900',
-          className,
-        )}
-      >
-        <Sidebar navItems={navItems} logo={logo} footer={sidebarFooter} />
+      <div className={cn('flex h-screen w-full overflow-hidden bg-[#0c0c0f]', className)}>
 
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-          <TopBar title={topBarTitle} actions={topBarActions} />
+        <Sidebar
+          navItems={navItems}
+          logo={logo}
+          footer={sidebarFooter}
+          onNavChange={onNavChange}
+        />
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden">
-            {children}
-          </main>
-        </div>
+        <main className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
+          {children}
+        </main>
+
       </div>
     </PageShellContext.Provider>
   )
@@ -239,19 +215,8 @@ export function PageShell({
 
 function CollapseIcon({ open }: { open: boolean }) {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    >
-      <motion.path
-        d="M3 8h10"
-        animate={{ opacity: 1 }}
-      />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M3 8h10" />
       <motion.path
         d={open ? 'M10 5l-3 3 3 3' : 'M6 5l3 3-3 3'}
         animate={{ d: open ? 'M10 5l-3 3 3 3' : 'M6 5l3 3-3 3' }}

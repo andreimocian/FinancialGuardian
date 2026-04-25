@@ -3,8 +3,42 @@ import { useAuthStore } from '@/stores/auth'
 import { FinancialFeature } from '@/features/financial'
 import { Login } from '@/features/auth/Login'
 import { Signup } from '@/features/auth/Signup'
+import Contracts from '@/features/contracts'
+import { PageShell } from '@/components/ui/layout/PageShell'
+import type { NavItem } from '@/components/ui/layout/PageShell'
 import { AnimatePresence, motion } from 'framer-motion'
-type Mode = 'login' | 'signup'
+
+type Mode    = 'login' | 'signup'
+type Feature = 'financial' | 'contracts'
+
+// ─── Nav items ────────────────────────────────────────────────────────────────
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    id:    'financial',
+    label: 'Overview',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="5" height="5" rx="1" />
+        <rect x="9" y="2" width="5" height="5" rx="1" />
+        <rect x="2" y="9" width="5" height="5" rx="1" />
+        <rect x="9" y="9" width="5" height="5" rx="1" />
+      </svg>
+    ),
+  },
+  {
+    id:    'contracts',
+    label: 'Contracts',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5L10 2z" />
+        <path d="M10 2v3h3M5 9h6M5 11.5h4" />
+      </svg>
+    ),
+  },
+]
+
+// ─── Loading screen ───────────────────────────────────────────────────────────
 
 function LoadingScreen() {
   return (
@@ -38,6 +72,66 @@ function LoadingScreen() {
   )
 }
 
+// ─── Sidebar footer — logout button ──────────────────────────────────────────
+
+function LogoutButton() {
+  const logout = useAuthStore((s) => s.logout)
+  return (
+    <button
+      onClick={logout}
+      title="Sign out"
+      className="flex items-center justify-center w-10 h-10 mx-auto rounded-xl text-white/20 hover:text-rose-400 hover:bg-rose-500/10 transition-all duration-150"
+    >
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 8H2M6 4l-4 4 4 4M11 4h2a1 1 0 011 1v6a1 1 0 01-1 1h-2" />
+      </svg>
+    </button>
+  )
+}
+
+// ─── Authenticated shell ──────────────────────────────────────────────────────
+
+function AppShell() {
+  const [active, setActive] = useState<Feature>('financial')
+
+  return (
+    <PageShell
+      navItems={NAV_ITEMS}
+      defaultActiveNav="financial"
+      defaultSidebarOpen={false}
+      onNavChange={(id) => setActive(id as Feature)}
+      sidebarFooter={<LogoutButton />}
+    >
+      <AnimatePresence mode="wait">
+        {active === 'financial' && (
+          <motion.div
+            key="financial"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+          >
+            <FinancialFeature />
+          </motion.div>
+        )}
+        {active === 'contracts' && (
+          <motion.div
+            key="contracts"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+          >
+            <Contracts />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageShell>
+  )
+}
+
+// ─── Root ─────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const user        = useAuthStore((s) => s.user)
   const initialized = useAuthStore((s) => s.initialized)
@@ -51,15 +145,33 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       {user ? (
-        <motion.div key="app" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
-          <FinancialFeature />
+        <motion.div
+          key="app"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <AppShell />
         </motion.div>
       ) : mode === 'login' ? (
-        <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+        <motion.div
+          key="login"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        >
           <Login onSwitch={() => setMode('signup')} />
         </motion.div>
       ) : (
-        <motion.div key="signup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
+        <motion.div
+          key="signup"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+        >
           <Signup onSwitch={() => setMode('login')} />
         </motion.div>
       )}
