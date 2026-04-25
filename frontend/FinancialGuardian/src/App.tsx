@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/stores/auth'
-import { FinancialFeature } from '@/features/financial'
+import { FinancialFeature } from '@/features/financial/index'
 import { Login } from '@/features/auth/Login'
 import { Signup } from '@/features/auth/Signup'
-import Contracts from '@/features/contracts'
+import Bills from '@/features/contracts'
+import ContractsPage from '@/features/contractsPage'
 import { PageShell } from '@/components/ui/layout/PageShell'
 import type { NavItem } from '@/components/ui/layout/PageShell'
 import { AnimatePresence, motion } from 'framer-motion'
 
 type Mode    = 'login' | 'signup'
-type Feature = 'financial' | 'contracts'
+type Feature = 'financial' | 'bills' | 'contractsPage'
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 
@@ -27,8 +28,18 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    id:    'contracts',
+    id:    'bills',
     label: 'Bills',
+    icon: (
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M2 4h12v10H2zM2 4l2-2h8l2 2" />
+        <path d="M5 8h6M5 11h4" />
+      </svg>
+    ),
+  },
+  {
+    id:    'contractsPage',
+    label: 'Contracts',
     icon: (
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M10 2H4a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5L10 2z" />
@@ -72,7 +83,7 @@ function LoadingScreen() {
   )
 }
 
-// ─── Sidebar footer — logout button ──────────────────────────────────────────
+// ─── Sidebar footer — logout ──────────────────────────────────────────────────
 
 function LogoutButton() {
   const logout = useAuthStore((s) => s.logout)
@@ -114,15 +125,26 @@ function AppShell() {
             <FinancialFeature />
           </motion.div>
         )}
-        {active === 'contracts' && (
+        {active === 'bills' && (
           <motion.div
-            key="contracts"
+            key="bills"
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.25 }}
           >
-            <Contracts />
+            <Bills />
+          </motion.div>
+        )}
+        {active === 'contractsPage' && (
+          <motion.div
+            key="contractsPage"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+          >
+            <ContractsPage />
           </motion.div>
         )}
       </AnimatePresence>
@@ -145,33 +167,15 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       {user ? (
-        <motion.div
-          key="app"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <motion.div key="app" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
           <AppShell />
         </motion.div>
       ) : mode === 'login' ? (
-        <motion.div
-          key="login"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
+        <motion.div key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
           <Login onSwitch={() => setMode('signup')} />
         </motion.div>
       ) : (
-        <motion.div
-          key="signup"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25 }}
-        >
+        <motion.div key="signup" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}>
           <Signup onSwitch={() => setMode('login')} />
         </motion.div>
       )}

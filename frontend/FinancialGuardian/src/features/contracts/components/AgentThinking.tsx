@@ -1,14 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import type { ExtractedContract, FieldConfidence, Confidence } from '../types'
+import type { Obligation, FieldConfidence, Confidence } from '../types'
 
 
-const FIELD_LABELS: Partial<Record<keyof ExtractedContract, string>> = {
-  providerName:      'Provider',
+const FIELD_LABELS: Partial<Record<keyof Obligation, string>> = {
+  provider:      'Provider',
   contractType:      'Contract type',
   startDate:         'Start date',
-  endDate:           'End date',
+  dueDate:           'End date',
   noticePeriodDays:  'Notice period',
-  monthlyCost:       'Monthly cost',
+  amount:       'Monthly cost',
   currency:          'Currency',
   cancellationTerms: 'Cancellation terms',
 }
@@ -28,23 +28,23 @@ function ConfidencePill({ confidence }: { confidence: Confidence }) {
 }
 
 
-function formatValue(key: keyof ExtractedContract, value: unknown): string {
+function formatValue(key: keyof Obligation, value: unknown): string {
   if (value === null || value === undefined) return '—'
-  if (key === 'startDate' || key === 'endDate') {
+  if (key === 'startDate' || key === 'dueDate') {
     try {
       return new Date(value as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
     } catch { return String(value) }
   }
   if (key === 'noticePeriodDays') return `${value} days`
-  if (key === 'monthlyCost') return `€${Number(value).toFixed(2)}`
+  if (key === 'amount') return `€${Number(value).toFixed(2)}`
   return String(value)
 }
 
 
-function isUrgentNotice(key: keyof ExtractedContract, fields: Partial<ExtractedContract>): boolean {
-  if (key !== 'noticePeriodDays' || !fields.endDate) return false
+function isUrgentNotice(key: keyof Obligation, fields: Partial<Obligation>): boolean {
+  if (key !== 'noticePeriodDays' || !fields.dueDate) return false
   const daysUntilEnd = Math.ceil(
-    (new Date(fields.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    (new Date(fields.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   )
   return daysUntilEnd <= (fields.noticePeriodDays ?? 0) + 7
 }
@@ -52,8 +52,8 @@ function isUrgentNotice(key: keyof ExtractedContract, fields: Partial<ExtractedC
 
 interface AgentThinkingProps {
   thinking:    string | null
-  fields:      Partial<ExtractedContract>
-  fieldOrder:  Array<keyof ExtractedContract>
+  fields:      Partial<Obligation>
+  fieldOrder:  Array<keyof Obligation>
   confidences: FieldConfidence
   status:      'streaming' | 'done' | 'error' | 'idle'
   fileName?:   string
@@ -139,7 +139,7 @@ export function AgentThinking({
             const label = FIELD_LABELS[key]
             if (!label) return null
             const value      = fields[key]
-            const confidence = confidences[key] ?? 'medium'
+            const confidence = (confidences as Record<keyof Obligation, Confidence | undefined>)[key] ?? 'medium'
             const urgent     = isUrgentNotice(key, fields)
 
             return (

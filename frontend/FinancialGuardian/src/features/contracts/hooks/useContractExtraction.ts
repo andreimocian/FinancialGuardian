@@ -1,53 +1,44 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { contractApi } from '../api'
-import type { ExtractedContract, ExtractionStatus, Confidence, AgentEvent, FieldConfidence } from '../types'
+import type { Obligation, ExtractionStatus, Confidence, AgentEvent, FieldConfidence } from '../types'
 
-type FieldKey = keyof ExtractedContract
+type FieldKey = keyof Obligation
 
 interface UseContractExtractionReturn {
-  fields:       Partial<ExtractedContract>
-  fieldOrder:   FieldKey[]
-  confidences:  FieldConfidence
-  thinking:     string | null
-  status:       ExtractionStatus
-  error:        string | null
-  startStream:  (fileId: string) => void
-  reset:        () => void
+  fields:      Partial<Obligation>
+  fieldOrder:  FieldKey[]
+  confidences: FieldConfidence
+  thinking:    string | null
+  status:      ExtractionStatus
+  error:       string | null
+  startStream: (fileId: string) => void
+  reset:       () => void
 }
 
-// ─── Set to true to test UI without a backend ─────────────────────────────────
-const USE_MOCK = true
-
 const MOCK_EVENTS: AgentEvent[] = [
-  { type: 'thinking',  message: 'Reading contract header…' },
-  { type: 'field',     key: 'providerName',     value: 'Vodafone',    confidence: 'high' },
-  { type: 'thinking',  message: 'Scanning for contract dates…' },
-  { type: 'field',     key: 'startDate',        value: '2024-01-01',  confidence: 'high' },
-  { type: 'field',     key: 'endDate',          value: '2025-06-01',  confidence: 'medium' },
-  { type: 'thinking',  message: 'Looking for notice period clause…' },
-  { type: 'field',     key: 'noticePeriodDays', value: 30,            confidence: 'high' },
-  { type: 'field',     key: 'monthlyCost',      value: 49.99,         confidence: 'high' },
-  { type: 'field',     key: 'contractType',     value: 'internet',    confidence: 'high' },
-  { type: 'thinking',  message: 'Extracting cancellation terms…' },
-  { type: 'field',     key: 'cancellationTerms', value: 'Must notify in writing 30 days prior to end date.', confidence: 'medium' },
+  { type: 'thinking', message: 'Reading contract header…' },
+  { type: 'field',    key: 'provider',         value: 'Vodafone',   confidence: 'high' },
+  { type: 'thinking', message: 'Scanning for contract dates…' },
+  { type: 'field',    key: 'dueDate',           value: '2025-06-01', confidence: 'medium' },
+  { type: 'thinking', message: 'Looking for notice period clause…' },
+  { type: 'field',    key: 'noticePeriodDays',  value: 30,           confidence: 'high' },
+  { type: 'field',    key: 'amount',            value: 49.99,        confidence: 'high' },
+  { type: 'field',    key: 'contractType',      value: 'internet',   confidence: 'high' },
+  { type: 'thinking', message: 'Extracting cancellation terms…' },
+  { type: 'field',    key: 'cancellationTerms', value: 'Must notify in writing 30 days prior to end date.', confidence: 'medium' },
   { type: 'done' },
 ]
 
 export function useContractExtraction(): UseContractExtractionReturn {
-  const [fields,      setFields]      = useState<Partial<ExtractedContract>>({})
+  const [fields,      setFields]      = useState<Partial<Obligation>>({})
   const [fieldOrder,  setFieldOrder]  = useState<FieldKey[]>([])
   const [confidences, setConfidences] = useState<FieldConfidence>({})
   const [thinking,    setThinking]    = useState<string | null>(null)
   const [status,      setStatus]      = useState<ExtractionStatus>('idle')
   const [error,       setError]       = useState<string | null>(null)
 
-  const esRef       = useRef<EventSource | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // ── Cleanup ───────────────────────────────────────────────────────────────
   const closeStream = useCallback(() => {
-    esRef.current?.close()
-    esRef.current = null
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
@@ -56,13 +47,11 @@ export function useContractExtraction(): UseContractExtractionReturn {
 
   useEffect(() => () => closeStream(), [closeStream])
 
-  // ── Shared event processor (used by both mock and real SSE) ───────────────
   const processEvent = useCallback((event: AgentEvent, onDone: () => void) => {
     switch (event.type) {
       case 'thinking':
         setThinking(event.message)
         break
-
       case 'field': {
         const key = event.key as FieldKey
         setFields(prev => ({ ...prev, [key]: event.value }))
@@ -71,13 +60,11 @@ export function useContractExtraction(): UseContractExtractionReturn {
         setThinking(null)
         break
       }
-
       case 'done':
         setThinking(null)
         setStatus('done')
         onDone()
         break
-
       case 'error':
         setError(event.message)
         setStatus('error')
@@ -86,45 +73,8 @@ export function useContractExtraction(): UseContractExtractionReturn {
     }
   }, [])
 
-  // ── Mock stream ───────────────────────────────────────────────────────────
-  const startMockStream = useCallback(() => {
-    let i = 0
-    intervalRef.current = setInterval(() => {
-      if (i >= MOCK_EVENTS.length) {
-        clearInterval(intervalRef.current!)
-        intervalRef.current = null
-        return
-      }
-      processEvent(MOCK_EVENTS[i++], () => {
-        clearInterval(intervalRef.current!)
-        intervalRef.current = null
-      })
-    }, 700)
-  }, [processEvent])
-
-  // ── Real SSE stream ───────────────────────────────────────────────────────
-  const startRealStream = useCallback((fileId: string) => {
-    const es = contractApi.getExtractionStream(fileId)
-    esRef.current = es
-
-    es.onmessage = (e: MessageEvent) => {
-      try {
-        const event: AgentEvent = JSON.parse(e.data)
-        processEvent(event, closeStream)
-      } catch {
-        // ignore malformed events
-      }
-    }
-
-    es.onerror = () => {
-      setStatus(prev => prev === 'done' ? 'done' : 'error')
-      setError(prev => prev ?? 'Connection to agent lost')
-      closeStream()
-    }
-  }, [processEvent, closeStream])
-
-  // ── Public startStream ────────────────────────────────────────────────────
-  const startStream = useCallback((fileId: string) => {
+  // _fileId is unused — backend handles extraction during upload, no real SSE
+  const startStream = useCallback((_fileId: string) => {
     closeStream()
     setFields({})
     setFieldOrder([])
@@ -133,14 +83,16 @@ export function useContractExtraction(): UseContractExtractionReturn {
     setError(null)
     setStatus('streaming')
 
-    if (USE_MOCK) {
-      startMockStream()
-    } else {
-      startRealStream(fileId)
-    }
-  }, [closeStream, startMockStream, startRealStream])
+    let i = 0
+    intervalRef.current = setInterval(() => {
+      if (i >= MOCK_EVENTS.length) {
+        closeStream()
+        return
+      }
+      processEvent(MOCK_EVENTS[i++], closeStream)
+    }, 700)
+  }, [closeStream, processEvent])
 
-  // ── Reset ─────────────────────────────────────────────────────────────────
   const reset = useCallback(() => {
     closeStream()
     setFields({})

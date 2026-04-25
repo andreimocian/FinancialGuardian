@@ -1,5 +1,4 @@
-import type { Obligation } from './types'
-
+import type { Contract, TimelineEvent } from './types'
 const API_URL = 'http://localhost:3000/api'
 
 async function request(path: string, options: RequestInit = {}) {
@@ -13,19 +12,16 @@ async function request(path: string, options: RequestInit = {}) {
   return data
 }
 
-export const contractApi = {
-  // POST /api/documents — multipart/form-data: file + type
-  // Agent runs server-side, obligation created automatically
-  // Returns { status, obligation }
+export const contractsApi = {
+  // POST /api/documents with type='contract'
   upload: async (
     file: File,
-    type: string,
     onProgress?: (pct: number) => void,
-  ): Promise<{ obligation: Obligation }> => {
+  ): Promise<{ contract: Contract }> => {
     return new Promise((resolve, reject) => {
       const formData = new FormData()
       formData.append('file', file)
-      formData.append('type', type)
+      formData.append('type', 'contract')
 
       const xhr = new XMLHttpRequest()
       xhr.open('POST', `${API_URL}/documents`)
@@ -52,23 +48,11 @@ export const contractApi = {
     })
   },
 
-  // GET /api/obligations
-  getAll: (): Promise<{ obligations: Obligation[] }> =>
-    request('/obligations'),
+  // GET /api/contracts
+  getAll: (): Promise<{ contracts: Contract[] }> =>
+    request('/contracts'),
 
-  // DELETE /api/obligations/:id
-  remove: (id: string) =>
-    request(`/obligations/${id}`, { method: 'DELETE' }),
-
-  // POST /api/obligations/:id/pay
-  markPaid: (id: string) =>
-    request(`/obligations/${id}/pay`, { method: 'POST' }),
-
-  // POST /api/obligations/:id/unpay
-  markUnpaid: (id: string) =>
-    request(`/obligations/${id}/unpay`, { method: 'POST' }),
-
-  // GET /api/timeline — unpaid bills as timeline events
-  getTimeline: (): Promise<{ events: unknown[] }> =>
-    request('/timeline'),
+  // GET /api/timeline?kind=contracts
+  getTimeline: (): Promise<{ events: TimelineEvent[] }> =>
+    request('/timeline?kind=contracts'),
 }

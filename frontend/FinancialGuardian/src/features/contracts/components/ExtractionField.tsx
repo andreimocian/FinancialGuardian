@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import type { ExtractedContract, Confidence } from '../types'
-
-type FieldKey = keyof ExtractedContract
+import type { Obligation, Confidence } from '../types'
+type FieldKey = keyof Obligation
 
 interface ExtractionFieldProps {
   label:      string

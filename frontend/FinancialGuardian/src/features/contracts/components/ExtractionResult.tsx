@@ -1,37 +1,37 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ExtractionField } from './ExtractionField'
-import type { ExtractedContract, FieldConfidence } from '../types'
+import type { Obligation, FieldConfidence } from '../types'
 
-type FieldKey = keyof ExtractedContract
+type FieldKey = keyof Obligation
 
 const FIELD_LABELS: Partial<Record<FieldKey, string>> = {
-  providerName:      'Provider',
+  provider:      'Provider',
   contractType:      'Contract type',
   startDate:         'Start date',
-  endDate:           'End date',
+  dueDate:           'End date',
   noticePeriodDays:  'Notice period',
-  monthlyCost:       'Monthly cost',
+  amount:       'Monthly cost',
   currency:          'Currency',
   cancellationTerms: 'Cancellation terms',
 }
 
 const DISPLAY_ORDER: FieldKey[] = [
-  'providerName',
+  'provider',
   'contractType',
-  'monthlyCost',
+  'amount',
   'currency',
   'startDate',
-  'endDate',
+  'dueDate',
   'noticePeriodDays',
   'cancellationTerms',
 ]
 
 interface ExtractionResultProps {
-  contract:    Partial<ExtractedContract>
+  contract:    Partial<Obligation>
   confidences: FieldConfidence
   fileName:    string
-  onSave:      (contract: Partial<ExtractedContract>) => Promise<void>
+  onSave:      (contract: Partial<Obligation>) => Promise<void>
   onDiscard:   () => void
 }
 
@@ -42,7 +42,7 @@ export function ExtractionResult({
   onSave,
   onDiscard,
 }: ExtractionResultProps) {
-  const [fields,  setFields]  = useState<Partial<ExtractedContract>>(initial)
+  const [fields,  setFields]  = useState<Partial<Obligation>>(initial)
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
 
@@ -73,7 +73,7 @@ export function ExtractionResult({
           </svg>
         </div>
         <p className="text-[15px] font-medium text-white/85">Saved to timeline</p>
-        <p className="text-[13px] text-white/35">{fields.providerName} contract added to your obligation timeline</p>
+        <p className="text-[13px] text-white/35">{fields.provider} contract added to your obligation timeline</p>
       </motion.div>
     )
   }

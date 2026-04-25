@@ -4,16 +4,16 @@ import { transactionApi } from '@/lib/api'
 import { motion } from 'framer-motion'
 import type { Variants } from 'framer-motion'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Transaction = {
-  _id: string
-  name: string
-  amount: number
-  type: 'income' | 'expense'
+  _id:      string
+  merchant: string    // was: name — backend uses merchant
+  amount:   number
+  type:     'income' | 'expense'
   category: string
-  date: string
+  date:     string
 }
+
 
 // ─── Category icon map ────────────────────────────────────────────────────────
 
@@ -237,7 +237,7 @@ export function FinancialFeature() {
                         {categoryIcon(t.category)}
                       </div>
                       <div>
-                        <p className="text-[13.5px] font-medium text-white/85">{t.name}</p>
+                        <p className="text-[13.5px] font-medium text-white/85">{t.merchant}</p>
                         <p className="text-[11px] text-white/30 mt-0.5">
                           {t.category} · {new Date(t.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                         </p>
