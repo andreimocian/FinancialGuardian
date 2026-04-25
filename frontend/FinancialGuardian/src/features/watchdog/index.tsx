@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useWatchdog } from './hooks/useWatchdog'
+import { NotificationPanel } from './components/NotificationPanel'
 import type { CategoryBreakdown, AggregatedPayment, WatchdogAlert, AlertSeverity, PaymentSource } from './types'
 
 
@@ -186,133 +187,6 @@ function AlertCard({ alert, index }: { alert: WatchdogAlert; index: number }) {
 }
 
 
-function GmailPanel({ alerts }: { alerts: WatchdogAlert[] }) {
-  const [expanded, setExpanded] = useState(false)
-  const wouldFire = alerts.filter(a => a.severity === 'critical' || a.severity === 'warning')
-
-  const GMAIL_RULES = [
-    {
-      icon: '📅',
-      title: 'Bill due soon',
-      desc: 'Email 7 days and 1 day before a bill is due',
-      source: 'bill' as PaymentSource,
-    },
-    {
-      icon: '⚠️',
-      title: 'Bill overdue',
-      desc: 'Immediate email when a bill passes its due date unpaid',
-      source: 'bill' as PaymentSource,
-    },
-    {
-      icon: '📋',
-      title: 'Contract notice deadline',
-      desc: '30-day and 7-day warning before notice period closes',
-      source: 'contract' as PaymentSource,
-    },
-    {
-      icon: '🔚',
-      title: 'Contract expiring',
-      desc: '60-day heads-up before a contract end date',
-      source: 'contract' as PaymentSource,
-    },
-  ]
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25, duration: 0.4 }}
-      className="bg-white/[0.04] border border-white/[0.07] rounded-2xl overflow-hidden"
-    >
-      <button
-        onClick={() => setExpanded(e => !e)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/[0.02] transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center shrink-0">
-            <svg width="15" height="11" viewBox="0 0 20 15" fill="none">
-              <rect x="0.5" y="0.5" width="19" height="14" rx="1.5" fill="none" stroke="rgba(255,255,255,0.15)" />
-              <path d="M0 2l10 7 10-7" stroke="#EA4335" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="text-left">
-            <p className="text-[14px] font-medium text-white/85">Gmail notifications</p>
-            <p className="text-[12px] text-white/30 mt-0.5">
-              {wouldFire.length > 0
-                ? `${wouldFire.length} notification${wouldFire.length > 1 ? 's' : ''} would send right now`
-                : 'No urgent notifications at this time'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[10px] font-medium px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-            Coming soon
-          </span>
-          <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M3 5l4 4 4-4" />
-            </svg>
-          </motion.div>
-        </div>
-      </button>
-
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-5 pt-4 space-y-5 border-t border-white/[0.06]">
-
-              {wouldFire.length > 0 && (
-                <div>
-                  <p className="text-[11px] text-white/30 uppercase tracking-wider mb-3">
-                    Would send now ({wouldFire.length})
-                  </p>
-                  <div className="space-y-2">
-                    {wouldFire.slice(0, 4).map((a, i) => (
-                      <div key={a.id} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${SEVERITY_STYLES[a.severity].dot}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] font-medium text-white/65 truncate">{a.message}</p>
-                        </div>
-                        <span className="text-[10px] text-white/25 shrink-0">{SOURCE_LABEL[a.source]}</span>
-                      </div>
-                    ))}
-                    {wouldFire.length > 4 && (
-                      <p className="text-[11px] text-white/25 pl-3">+{wouldFire.length - 4} more</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <p className="text-[11px] text-white/30 uppercase tracking-wider mb-3">Notification rules</p>
-                <div className="space-y-2">
-                  {GMAIL_RULES.map(rule => (
-                    <div key={rule.title} className="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-                      <span className="text-[15px] shrink-0 mt-0.5">{rule.icon}</span>
-                      <div className="min-w-0">
-                        <p className="text-[12.5px] font-medium text-white/60">{rule.title}</p>
-                        <p className="text-[11px] text-white/30 mt-0.5">{rule.desc}</p>
-                      </div>
-                      <span className="text-[10px] text-white/20 shrink-0 mt-1 capitalize">{rule.source}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  )
-}
-
-
 function Skeleton() {
   return (
     <div className="space-y-4">
@@ -453,7 +327,7 @@ export default function Watchdog() {
               </motion.div>
             )}
 
-            <GmailPanel alerts={alerts} />
+            <NotificationPanel alerts={alerts} />
           </>
         )}
 
