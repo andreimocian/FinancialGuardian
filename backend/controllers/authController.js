@@ -8,8 +8,8 @@ const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, {
 const attachCookie = (res, token) => {
     res.cookie('jwt', token, {
         httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
-        sameSite: 'strict',
         maxAge: 90 * 24 * 60 * 60 * 1000,
     });
 };
