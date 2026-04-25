@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const Document = require('../models/documentModel');
 const Obligation = require('../models/obligationModel');
 const Contract = require('../models/contractModel');
@@ -9,13 +7,6 @@ const {
 } = require('../services/pdfExtractor');
 
 const VALID_TYPES = ['lease', 'utility', 'contract'];
-const BACKEND_ROOT = path.join(__dirname, '..');
-
-const toRelative = (absPath) =>
-    path.relative(BACKEND_ROOT, absPath).split(path.sep).join('/');
-
-const toAbsolute = (relPath) =>
-    path.isAbsolute(relPath) ? relPath : path.resolve(BACKEND_ROOT, relPath);
 
 exports.uploadDocument = async (req, res) => {
     let document;
@@ -26,14 +17,12 @@ exports.uploadDocument = async (req, res) => {
 
         const { type } = req.body;
         if (!VALID_TYPES.includes(type)) {
-            await fs.promises.unlink(req.file.path).catch(() => {});
             return res.status(400).json({ message: `type must be one of: ${VALID_TYPES.join(', ')}` });
         }
 
         document = await Document.create({
             userId: req.user._id,
             filename: req.file.originalname,
-            storedPath: toRelative(req.file.path),
             mimeType: req.file.mimetype,
             type,
             status: 'pending',
@@ -42,7 +31,7 @@ exports.uploadDocument = async (req, res) => {
         if (type === 'contract') {
             let extracted;
             try {
-                extracted = await extractContractFromPdf(req.file.path);
+                extracted = await extractContractFromPdf(req.file.buffer);
             } catch (err) {
                 document.status = 'failed';
                 document.extractionError = err.message;
@@ -78,7 +67,7 @@ exports.uploadDocument = async (req, res) => {
 
         let extracted;
         try {
-            extracted = await extractObligationFromPdf(req.file.path, type);
+            extracted = await extractObligationFromPdf(req.file.buffer, type);
         } catch (err) {
             document.status = 'failed';
             document.extractionError = err.message;
@@ -108,9 +97,6 @@ exports.uploadDocument = async (req, res) => {
 
         res.status(201).json({ status: 'success', document, obligation });
     } catch (err) {
-        if (req.file) {
-            await fs.promises.unlink(req.file.path).catch(() => {});
-        }
         res.status(500).json({ message: err.message });
     }
 };
@@ -147,31 +133,6 @@ exports.getDocument = async (req, res) => {
     }
 };
 
-exports.downloadDocument = async (req, res) => {
-    try {
-        const document = await Document.findOne({
-            _id: req.params.id,
-            userId: req.user._id,
-        });
-        if (!document) return res.status(404).json({ message: 'Document not found' });
-
-        const absPath = toAbsolute(document.storedPath);
-        if (!fs.existsSync(absPath)) {
-            return res.status(410).json({ message: 'File no longer available on server' });
-        }
-
-        const inline = req.query.inline === 'true';
-        res.setHeader('Content-Type', document.mimeType || 'application/pdf');
-        res.setHeader(
-            'Content-Disposition',
-            `${inline ? 'inline' : 'attachment'}; filename="${encodeURIComponent(document.filename)}"`
-        );
-        fs.createReadStream(absPath).pipe(res);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-};
-
 exports.deleteDocument = async (req, res) => {
     try {
         const document = await Document.findOneAndDelete({
@@ -186,7 +147,6 @@ exports.deleteDocument = async (req, res) => {
         if (document.contractId) {
             await Contract.findByIdAndDelete(document.contractId);
         }
-        await fs.promises.unlink(toAbsolute(document.storedPath)).catch(() => {});
 
         res.status(200).json({ status: 'success' });
     } catch (err) {

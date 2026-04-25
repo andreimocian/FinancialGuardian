@@ -9,7 +9,6 @@ router.use(protect);
 router.post('/', uploadPdf.single('file'), documentController.uploadDocument);
 router.get('/', documentController.getDocuments);
 router.get('/:id', documentController.getDocument);
-router.get('/:id/download', documentController.downloadDocument);
 router.delete('/:id', documentController.deleteDocument);
 
 module.exports = router;
