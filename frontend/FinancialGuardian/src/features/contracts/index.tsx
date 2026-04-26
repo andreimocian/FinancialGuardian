@@ -13,8 +13,8 @@ type TimelineEvent = {
   provider:     string
   amount:       number
   currency:     string
-  date:         string
-  daysLeft:     number
+  eventDate:         string
+  daysUntil:     number
   kind?:        string
   description?: string
 }
@@ -43,7 +43,7 @@ function formatDate(d: string) {
 
 
 function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: number; isLast: boolean }) {
-  const urgency = getUrgency(event.daysLeft)
+  const urgency = getUrgency(event.daysUntil)
   const styles  = URGENCY[urgency]
 
   return (
@@ -65,12 +65,12 @@ function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: nu
             {styles.label}
           </span>
         </div>
-        <p className={`text-[12px] mb-1 ${styles.text}`}>Due {formatDate(event.date)}</p>
+        <p className={`text-[12px] mb-1 ${styles.text}`}>Due {formatDate(event.eventDate)}</p>
         <p className="text-[11px] text-white/25">
-          {event.daysLeft < 0
-            ? `${Math.abs(event.daysLeft)} days overdue`
-            : event.daysLeft === 0 ? 'Due today'
-            : `${event.daysLeft} days left`}
+          {event.daysUntil < 0
+            ? `${Math.abs(event.daysUntil)} days overdue`
+            : event.daysUntil === 0 ? 'Due today'
+            : `${event.daysUntil} days left`}
           {' · '}€{event.amount.toFixed(2)}
           {event.description ? ` · ${event.description}` : ''}
         </p>
