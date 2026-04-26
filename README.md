@@ -69,9 +69,9 @@ Income − fixed expenses − predicted costs
 AI adjusts predictions based on user behavior
 
 ## 👨‍💻 Authors
-Andrei Mocian - backend and deployment
+Andrei Mocian - backend & deployment
 
-Maria Morutan - frontend and design
+Maria Morutan - frontend & design
 
 Emma Ghita - pitch & business
 
