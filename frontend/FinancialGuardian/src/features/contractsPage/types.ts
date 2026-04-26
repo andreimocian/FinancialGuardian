@@ -23,8 +23,8 @@ export type TimelineEvent = {
   provider:      string
   monthlyAmount: number
   currency:      string
-  date:          string
+  eventDate:          string
   kind:          'notice' | 'end'
-  daysLeft:      number
+  daysUntil:      number
   description?:  string
 }

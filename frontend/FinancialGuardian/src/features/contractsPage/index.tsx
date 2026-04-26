@@ -242,7 +242,7 @@ function ContractCard({ contract, index }: { contract: Contract; index: number }
 // ─── Timeline row ─────────────────────────────────────────────────────────────
 
 function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: number; isLast: boolean }) {
-  const urgency = getUrgency(event.daysLeft)
+  const urgency = getUrgency(event.daysUntil)
   const styles  = URGENCY[urgency]
   const amount  = event.monthlyAmount ?? 0
 
@@ -269,11 +269,11 @@ function TimelineRow({ event, index, isLast }: { event: TimelineEvent; index: nu
           </span>
         </div>
         <p className={`text-[12px] mb-1 ${styles.text}`}>
-          {event.kind === 'notice' ? 'Notice deadline' : 'Contract ends'} — {formatDate(event.date)}
+          {event.kind === 'notice' ? 'Notice deadline' : 'Contract ends'} — {formatDate(event.eventDate)}
         </p>
         <p className="text-[11px] text-white/25">
-          {event.daysLeft < 0 ? `${Math.abs(event.daysLeft)} days ago` :
-           event.daysLeft === 0 ? 'Today' : `${event.daysLeft} days left`}
+          {event.daysUntil < 0 ? `${Math.abs(event.daysUntil)} days ago` :
+           event.daysUntil === 0 ? 'Today' : `${event.daysUntil} days left`}
           {' · '}€{amount.toFixed(2)}/mo
         </p>
       </div>
