@@ -29,27 +29,13 @@ function generateSeed(userId) {
     // Monthly salary (paid on the 25th)
     for (let i = MONTHS - 1; i >= 0; i--) {
         push({
-            merchant: 'Acme Corp Payroll',
-            amount: 8500,
+            merchant: 'Cloudflight',
+            amount: 2000,
             category: 'salary',
             type: 'income',
             date: monthStart(i, 25),
             description: 'Monthly salary',
         });
-    }
-
-    // Occasional freelance income (~40% of months)
-    for (let i = MONTHS - 1; i >= 0; i--) {
-        if (Math.random() < 0.4) {
-            push({
-                merchant: 'Upwork',
-                amount: round2(rand(400, 1800)),
-                category: 'freelance',
-                type: 'income',
-                date: monthStart(i, randInt(5, 20)),
-                description: 'Freelance project',
-            });
-        }
     }
 
     for (let i = MONTHS - 1; i >= 0; i--) {
@@ -64,7 +50,7 @@ function generateSeed(userId) {
 
     for (let i = MONTHS - 1; i >= 0; i--) {
         push({
-            merchant: 'Fitness First',
+            merchant: '18 Gym',
             amount: 29.00,
             category: 'fitness',
             date: monthStart(i, 5),
@@ -75,20 +61,10 @@ function generateSeed(userId) {
     for (let i = MONTHS - 1; i >= 0; i--) {
         push({
             merchant: 'Spotify',
-            amount: 9.99,
+            amount: 5,
             category: 'music',
             date: monthStart(i, 7),
             description: 'Spotify Premium',
-        });
-    }
-
-    for (let i = 3; i >= 0; i--) {
-        push({
-            merchant: 'Apple Music',
-            amount: 10.99,
-            category: 'music',
-            date: monthStart(i, 12),
-            description: 'Apple Music Individual',
         });
     }
 
@@ -114,36 +90,6 @@ function generateSeed(userId) {
 
     for (let i = MONTHS - 1; i >= 0; i--) {
         push({
-            merchant: 'Adobe',
-            amount: 59.99,
-            category: 'software',
-            date: monthStart(i, 22),
-            description: 'Creative Cloud All Apps',
-        });
-    }
-
-    for (let i = MONTHS - 1; i >= 0; i--) {
-        push({
-            merchant: 'Apple iCloud',
-            amount: 2.99,
-            category: 'software',
-            date: monthStart(i, 9),
-            description: 'iCloud+ 200GB',
-        });
-    }
-
-    for (let i = MONTHS - 1; i >= 0; i--) {
-        push({
-            merchant: 'Google',
-            amount: 9.99,
-            category: 'software',
-            date: monthStart(i, 11),
-            description: 'Google One 2TB',
-        });
-    }
-
-    for (let i = MONTHS - 1; i >= 0; i--) {
-        push({
             merchant: 'E.ON',
             amount: round2(rand(55, 95)),
             category: 'utilities',
@@ -152,14 +98,14 @@ function generateSeed(userId) {
         });
         push({
             merchant: 'Digi',
-            amount: 39.00,
+            amount: 15.00,
             category: 'utilities',
             date: monthStart(i, 17),
             description: 'Internet + mobile',
         });
         push({
             merchant: 'Engie',
-            amount: round2(rand(30, 80)),
+            amount: round2(rand(20, 30)),
             category: 'utilities',
             date: monthStart(i, 20),
             description: 'Gas bill',
@@ -175,7 +121,7 @@ function generateSeed(userId) {
             d.setHours(randInt(10, 20), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(grocers),
-                amount: round2(rand(22, 140)),
+                amount: round2(rand(10, 50)),
                 category: 'groceries',
                 date: d,
                 description: 'Groceries',
@@ -193,7 +139,7 @@ function generateSeed(userId) {
             d.setHours(randInt(7, 17), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(cafes),
-                amount: round2(rand(3.5, 12)),
+                amount: round2(rand(3.5, 5)),
                 category: 'coffee',
                 date: d,
                 description: 'Coffee',
@@ -211,7 +157,7 @@ function generateSeed(userId) {
             d.setHours(randInt(18, 22), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(delivery),
-                amount: round2(rand(18, 65)),
+                amount: round2(rand(9, 20)),
                 category: 'food',
                 date: d,
                 description: 'Food delivery',
@@ -229,7 +175,7 @@ function generateSeed(userId) {
             d.setHours(randInt(7, 20), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(fuel),
-                amount: round2(rand(180, 320)),
+                amount: round2(rand(100, 150)),
                 category: 'transport',
                 date: d,
                 description: 'Fuel',
@@ -243,7 +189,7 @@ function generateSeed(userId) {
             d.setHours(randInt(8, 23), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(['Uber', 'Bolt']),
-                amount: round2(rand(12, 45)),
+                amount: round2(rand(5, 10)),
                 category: 'transport',
                 date: d,
                 description: 'Ride',
@@ -261,7 +207,7 @@ function generateSeed(userId) {
             d.setHours(randInt(18, 22), randInt(0, 59), 0, 0);
             push({
                 merchant: pick(restaurants),
-                amount: round2(rand(85, 260)),
+                amount: round2(rand(10, 50)),
                 category: 'restaurants',
                 date: d,
                 description: 'Dinner',
@@ -270,11 +216,10 @@ function generateSeed(userId) {
     }
 
     const shops = [
-        { merchant: 'eMAG', category: 'shopping', min: 45, max: 480 },
-        { merchant: 'Amazon', category: 'shopping', min: 25, max: 220 },
-        { merchant: 'Zara', category: 'clothing', min: 80, max: 320 },
-        { merchant: 'Decathlon', category: 'sports', min: 35, max: 250 },
-        { merchant: 'IKEA', category: 'home', min: 60, max: 420 },
+        { merchant: 'eMAG', category: 'shopping', min: 10, max: 100 },
+        { merchant: 'Zara', category: 'clothing', min: 20, max: 100 },
+        { merchant: 'Decathlon', category: 'sports', min: 10, max: 120 },
+        { merchant: 'IKEA', category: 'home', min: 60, max: 200 },
     ];
     for (let i = MONTHS - 1; i >= 0; i--) {
         const n = randInt(1, 3);
