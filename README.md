@@ -70,7 +70,9 @@ AI adjusts predictions based on user behavior
 
 ## 👨‍💻 Authors
 Andrei Mocian - backend and deployment
+
 Maria Morutan - frontend and design
+
 Emma Ghita - pitch & business
 
 ## ⭐ Why This Project Stands Out
