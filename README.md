@@ -1,4 +1,4 @@
-# 💰Financial Guardian
+# 💰Financial Guardian - 2nd place winner at Polihack v19
 
 Financial Guardian is an intelligent personal finance web application that helps users manage their money, understand expenses, and make smarter financial decisions using AI-powered insights.
 
