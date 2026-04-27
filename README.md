@@ -2,6 +2,8 @@
 
 Financial Guardian is an intelligent personal finance web application that helps users manage their money, understand expenses, and make smarter financial decisions using AI-powered insights.
 
+<img width="4250" height="2000" alt="guardian_logo" src="https://github.com/user-attachments/assets/935515d8-65c8-4fd5-9e5e-74e13f7aa246" />
+
 ## 🚀 Features
 ### 📊 Transaction Management
 Add, edit, delete, and categorize financial transactions.
